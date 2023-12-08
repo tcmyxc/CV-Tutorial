@@ -1,4 +1,7 @@
 # CV Tutorial——CV方向入门指南
+
+> 代码在 `src` 文件夹下面 :coffee: 
+
 ## 编程环境和IDE
 
 > 工欲善其事，必先利其器
@@ -12,7 +15,7 @@ VSCode：推荐
 - SSH远程链接
 	- 密钥生成及保存（涉及git）
 
-PyCharm
+PyCharm（代码提示好）
 
 ## git安装以及生成公私钥
 
