@@ -16,7 +16,10 @@ PyCharm
 
 ## git安装以及生成公私钥
 
-git安装地址：https://git.p2hp.com/，https://git-scm.com/
+git安装地址：
+
+- 国内中文网站：https://git.p2hp.com/
+- 官网：https://git-scm.com/
 
 git相关配置
 
@@ -37,7 +40,7 @@ ssh-keygen -t rsa -C "你的邮箱"
 
 案例：https://pytorch.org/tutorials/beginner/basics/quickstart_tutorial.html
 
-讲解：TODO
+讲解：https://www.bilibili.com/video/BV1hu4y1g7VP/
 
 ## 常用库
 
