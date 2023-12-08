@@ -14,6 +14,25 @@ VSCode：推荐
 
 PyCharm
 
+## git安装以及生成公私钥
+
+git安装地址：https://git.p2hp.com/，https://git-scm.com/
+
+git相关配置
+
+```bash
+git config --global user.name '你的用户名'
+git config --global user.email '你的邮箱'
+```
+
+生成ssh密钥：
+
+```bash
+ssh-keygen -t rsa -C "你的邮箱"
+```
+
+
+
 ## 入门案例
 
 案例：https://pytorch.org/tutorials/beginner/basics/quickstart_tutorial.html
