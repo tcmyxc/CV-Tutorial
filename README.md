@@ -45,5 +45,12 @@ ssh-keygen -t rsa -C "你的邮箱"
 
 讲解：https://www.bilibili.com/video/BV1hu4y1g7VP/
 
+### 数据增强
+
+推荐仓库：
+
+1. https://github.com/DeepVoltaire/AutoAugment
+2. https://albumentations.ai/docs/
+
 ## 常用库
 

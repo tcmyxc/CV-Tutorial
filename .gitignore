@@ -1,0 +1,8 @@
+venv/
+.idea/
+.DS_Store
+logs/
+data/
+__pycache__/
+work_dir/
+*.pth

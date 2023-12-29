@@ -1,38 +1,21 @@
+import argparse
+
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
-from torchvision import datasets
-from torchvision.transforms import ToTensor
+from torchvision import models
 
-import argparse
+from datasets.cifar10 import get_cifar10
+
 
 def get_argparse():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--epochs", type=int, default=200)
+    parser.add_argument("--epochs", type=int, default=5)
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--lr", type=float, default=0.01)
     parser.add_argument("--momentum", type=float, default=0.9)
     parser.add_argument("--weight_decay", type=float, default=5e-4)
     return parser.parse_args()
-
-
-# Define model
-class NeuralNetwork(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.flatten = nn.Flatten()
-        self.linear_relu_stack = nn.Sequential(
-            nn.Linear(32 * 32 * 3, 512),
-            nn.ReLU(),
-            nn.Linear(512, 512),
-            nn.ReLU(),
-            nn.Linear(512, 10)
-        )
-
-    def forward(self, x):
-        x = self.flatten(x)
-        logits = self.linear_relu_stack(x)
-        return logits
 
 
 def train(dataloader, model, loss_fn, optimizer, device):
@@ -72,27 +55,14 @@ def test(dataloader, model, loss_fn, device):
 
 
 def main(args):
-    # Download training data from open datasets.
-    training_data = datasets.CIFAR10(
-        root="E:\dataset",
-        train=True,
-        download=True,
-        transform=ToTensor(),
-    )
-
-    # Download test data from open datasets.
-    test_data = datasets.CIFAR10(
-        root="E:\dataset",
-        train=False,
-        download=True,
-        transform=ToTensor(),
-    )
+    training_data = get_cifar10(train_flag=True)
+    test_data = get_cifar10(train_flag=False)
 
     batch_size = args.batch_size
 
     # Create data loaders.
     train_dataloader = DataLoader(training_data, batch_size=batch_size)
-    test_dataloader = DataLoader(test_data, batch_size=batch_size)
+    test_dataloader = DataLoader(test_data, batch_size=batch_size//2)  # 防止暴显存
 
     # Get cpu, gpu or mps device for training.
     device = (
@@ -104,7 +74,7 @@ def main(args):
     )
     print(f"Using {device} device")
 
-    model = NeuralNetwork().to(device)
+    model = models.resnet18().to(device)
 
     loss_fn = nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(
