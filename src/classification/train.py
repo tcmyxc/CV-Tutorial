@@ -134,18 +134,19 @@ def main(args):
 
     print("Loading data")
     # TODO: 自行加载数据集
-    dataset, dataset_test = get_cifar10(args.data_path, True), get_cifar10(args.data_path, False)
+    train_dataset = get_cifar10(args.data_path, True)
+    test_dataset = get_cifar10(args.data_path, False)
 
     # 采样器
     if args.distributed:
         if hasattr(args, "ra_sampler") and args.ra_sampler:
-            train_sampler = RASampler(dataset, shuffle=True, repetitions=args.ra_reps)
+            train_sampler = RASampler(train_dataset, shuffle=True, repetitions=args.ra_reps)
         else:
-            train_sampler = torch.utils.data.distributed.DistributedSampler(dataset)
-        test_sampler = torch.utils.data.distributed.DistributedSampler(dataset_test, shuffle=False)
+            train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
+        test_sampler = torch.utils.data.distributed.DistributedSampler(test_dataset, shuffle=False)
     else:
-        train_sampler = torch.utils.data.RandomSampler(dataset)
-        test_sampler = torch.utils.data.SequentialSampler(dataset_test)
+        train_sampler = torch.utils.data.RandomSampler(train_dataset)
+        test_sampler = torch.utils.data.SequentialSampler(test_dataset)
 
     collate_fn = None
 
@@ -164,21 +165,22 @@ def main(args):
 
     print("Creating data loaders")
     data_loader = torch.utils.data.DataLoader(
-        dataset,
+        train_dataset,
         batch_size=args.batch_size,
         sampler=train_sampler,
         num_workers=args.workers,
         collate_fn=collate_fn,
     )
     data_loader_test = torch.utils.data.DataLoader(
-        dataset_test,
+        test_dataset,
         batch_size=args.batch_size//2,
         sampler=test_sampler,
         num_workers=args.workers,
     )
 
     print("Creating model")
-    model = torchvision.models.get_model(args.model, weights=args.weights, num_classes=num_classes)  # TODO: 模型架构
+    # TODO: 模型架构
+    model = torchvision.models.get_model(args.model, weights=args.weights, num_classes=num_classes)
     model.to(device)
 
     if args.distributed and args.sync_bn:
@@ -269,7 +271,7 @@ def main(args):
         # https://github.com/facebookresearch/pycls/blob/f8cd9627/pycls/core/net.py#L123
         #
         # total_ema_updates = (Dataset_size / n_GPUs) * epochs / (batch_size_per_gpu * EMA_steps)
-        # We consider constant = Dataset_size for a given dataset/setup and ommit it. Thus:
+        # We consider constant = Dataset_size for a given train_dataset/setup and ommit it. Thus:
         # adjust = 1 / total_ema_updates ~= n_GPUs * batch_size_per_gpu * EMA_steps / epochs
         adjust = args.world_size * args.batch_size * args.model_ema_steps / args.epochs
         alpha = 1.0 - args.model_ema_decay
@@ -350,8 +352,6 @@ def get_args_parser(add_help=True):
     parser.add_argument("--data-path", default="~/datasets/", type=str, help="dataset path")
     # 模型架构
     parser.add_argument("--model", default="resnet18", type=str, help="model name")
-    # 设备
-    parser.add_argument("--device", default="cuda", type=str, help="device (Use cuda or cpu Default: cuda)")
     parser.add_argument(
         "-b", "--batch-size", default=128, type=int, help="images per gpu, the total batch size is $NGPU x batch_size"
     )
@@ -421,6 +421,7 @@ def get_args_parser(add_help=True):
         help="Use sync batch norm",
         action="store_true",
     )
+
     # 是否只是测试一下给定的权重
     parser.add_argument(
         "--test-only",
@@ -428,12 +429,6 @@ def get_args_parser(add_help=True):
         help="Only test the model",
         action="store_true",
     )
-
-    # 下面四行是数据增强
-    parser.add_argument("--auto-augment", default=None, type=str, help="auto augment policy (default: None)")
-    parser.add_argument("--ra-magnitude", default=9, type=int, help="magnitude of auto augment policy")
-    parser.add_argument("--augmix-severity", default=3, type=int, help="severity of augmix policy")
-    parser.add_argument("--random-erase", default=0.0, type=float, help="random erasing probability (default: 0.0)")
 
     # 混合精度训练
     parser.add_argument("--amp", action="store_true", help="Use torch.cuda.amp for mixed precision training")
@@ -462,18 +457,7 @@ def get_args_parser(add_help=True):
     parser.add_argument(
         "--use-deterministic-algorithms", action="store_true", help="Forces the use of deterministic algorithms only."
     )
-    parser.add_argument(
-        "--interpolation", default="bilinear", type=str, help="the interpolation method (default: bilinear)"
-    )
-    parser.add_argument(
-        "--val-resize-size", default=256, type=int, help="the resize size used for validation (default: 256)"
-    )
-    parser.add_argument(
-        "--val-crop-size", default=224, type=int, help="the central crop size used for validation (default: 224)"
-    )
-    parser.add_argument(
-        "--train-crop-size", default=224, type=int, help="the random crop size used for training (default: 224)"
-    )
+
     parser.add_argument("--clip-grad-norm", default=None, type=float, help="the maximum gradient norm (default None)")
 
     parser.add_argument("--ra-sampler", action="store_true", help="whether to use Repeated Augmentation in training")
