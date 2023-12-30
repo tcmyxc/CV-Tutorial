@@ -61,7 +61,7 @@ def main(args):
     batch_size = args.batch_size
 
     # Create data loaders.
-    train_dataloader = DataLoader(training_data, batch_size=batch_size)
+    train_dataloader = DataLoader(training_data, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_data, batch_size=batch_size//2)  # 防止暴显存
 
     # Get cpu, gpu or mps device for training.
