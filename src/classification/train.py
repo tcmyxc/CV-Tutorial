@@ -18,6 +18,10 @@ from utils import torch_utils as utils
 from sampler import RASampler
 from datasets.cifar10 import get_cifar10
 
+LOCAL_RANK = int(os.getenv('LOCAL_RANK', -1))  # https://pytorch.org/docs/stable/elastic/run.html
+RANK = int(os.getenv('RANK', -1))
+WORLD_SIZE = int(os.getenv('WORLD_SIZE', 1))
+
 best_acc1 = 0
 
 
@@ -317,6 +321,7 @@ def main(args):
         # remember best acc@1 and save checkpoint
         is_best = acc1 > best_acc1
         best_acc1 = max(acc1, best_acc1)
+        
         if args.output_dir:
             checkpoint = {
                 "model": model_without_ddp.state_dict(),
