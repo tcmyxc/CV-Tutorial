@@ -14,7 +14,7 @@ if str(ROOT) not in sys.path:
 
 def main():
     training_data = datasets.CIFAR100(
-        root="E:\dataset",
+        root="~/datasets",
         train=True,
         download=True,
         transform=ToTensor(),
@@ -26,9 +26,19 @@ def main():
         g += torch.mean(img[1])
         b += torch.mean(img[2])
 
-    print(r / len(training_data))
-    print(g / len(training_data))
-    print(b / len(training_data))
+    print(f"mean: ({(r / len(training_data)):.4f}, "
+          f"{(g / len(training_data)):.4f}, "
+          f"{(b / len(training_data)):.4f})")
+
+    r, g, b = 0, 0, 0
+    for img, _ in training_data:
+        r += torch.std(img[0])
+        g += torch.std(img[1])
+        b += torch.std(img[2])
+
+    print(f"std: ({(r / len(training_data)):.4f}, "
+          f"{(g / len(training_data)):.4f}, "
+          f"{(b / len(training_data)):.4f})")
 
 
 
