@@ -12,15 +12,12 @@ import torch.utils.data
 import torchvision
 from torch import nn
 from torch.utils.data.dataloader import default_collate
+from torch.utils.tensorboard import SummaryWriter
 
 import transforms
 from utils import torch_utils as utils
 from sampler import RASampler
 from datasets.cifar10 import get_cifar10
-
-LOCAL_RANK = int(os.getenv('LOCAL_RANK', -1))  # https://pytorch.org/docs/stable/elastic/run.html
-RANK = int(os.getenv('RANK', -1))
-WORLD_SIZE = int(os.getenv('WORLD_SIZE', 1))
 
 best_acc1 = 0
 
@@ -67,6 +64,8 @@ def train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, arg
         metric_logger.meters["acc5"].update(acc5.item(), n=batch_size)
         metric_logger.meters["img/s"].update(batch_size / (time.time() - start_time))
 
+        return metric_logger.acc1.global_avg, metric_logger.loss.global_avg
+
 
 def evaluate(model, criterion, data_loader, device, print_freq=100, log_suffix=""):
     model.eval()
@@ -108,7 +107,8 @@ def evaluate(model, criterion, data_loader, device, print_freq=100, log_suffix="
     metric_logger.synchronize_between_processes()
 
     print(f"{header} Acc@1 {metric_logger.acc1.global_avg:.3f} Acc@5 {metric_logger.acc5.global_avg:.3f}")
-    return metric_logger.acc1.global_avg
+
+    return metric_logger.acc1.global_avg, metric_logger.loss.global_avg
 
 
 def main(args):
@@ -119,6 +119,10 @@ def main(args):
 
     utils.init_distributed_mode(args)  # 初始化分布式环境
     print(args)
+
+    if args.rank == 0:  # 在第一个进程中打印信息，并实例化tensorboard
+        print(f'[INFO] Start Tensorboard with "tensorboard --logdir={args.output_dir}", view at http://localhost:6006/')
+        tb_writer = SummaryWriter(args.output_dir)
 
     # Get cpu, gpu or mps device for training.
     device = (
@@ -312,16 +316,27 @@ def main(args):
     for epoch in range(args.start_epoch, args.epochs):
         if args.distributed:
             train_sampler.set_epoch(epoch)
-        train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, args, model_ema, scaler)
+        train_acc, train_loss = train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, args, model_ema, scaler)
         lr_scheduler.step()
-        acc1 = evaluate(model, criterion, data_loader_test, device=device)
+        acc1, val_loss = evaluate(model, criterion, data_loader_test, device=device)
         if model_ema:
-            acc1 = evaluate(model_ema, criterion, data_loader_test, device=device, log_suffix="EMA")
+            acc1, val_loss = evaluate(model_ema, criterion, data_loader_test, device=device, log_suffix="EMA")
 
         # remember best acc@1 and save checkpoint
         is_best = acc1 > best_acc1
         best_acc1 = max(acc1, best_acc1)
-        
+
+        if args.rank == 0:
+            tag_scalar_dict = {
+                "train_loss": train_loss,
+                "train_acc": train_acc / 100,
+                "test_acc": acc1 / 100,
+                "test_loss": val_loss,
+                "best_acc1": best_acc1 / 100,
+            }
+
+            tb_writer.add_scalars(main_tag="loss_acc", tag_scalar_dict=tag_scalar_dict, global_step=epoch)
+
         if args.output_dir:
             checkpoint = {
                 "model": model_without_ddp.state_dict(),
