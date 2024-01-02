@@ -21,12 +21,16 @@ from datasets.cifar10 import get_cifar10
 
 best_acc1 = 0
 
+LOCAL_RANK = int(os.getenv('LOCAL_RANK', -1))  # https://pytorch.org/docs/stable/elastic/run.html
+RANK = int(os.getenv('RANK', -1))
+WORLD_SIZE = int(os.getenv('WORLD_SIZE', 1))
+
 
 def train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, args, model_ema=None, scaler=None):
     model.train()
     metric_logger = utils.MetricLogger(delimiter="  ")
-    metric_logger.add_meter("lr", utils.SmoothedValue(window_size=1, fmt="{value:.8f}"))
-    metric_logger.add_meter("img/s", utils.SmoothedValue(window_size=10, fmt="{value:4.0f}"))
+    metric_logger.add_meter("lr", utils.SmoothedValue(window_size=1, fmt="{value:.6f}"))
+    metric_logger.add_meter("img/s", utils.SmoothedValue(window_size=10, fmt="{value:6.0f}"))
 
     header = f"Epoch: [{epoch}]"
     for i, (image, target) in enumerate(metric_logger.log_every(data_loader, args.print_freq, header)):
@@ -64,7 +68,8 @@ def train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, arg
         metric_logger.meters["acc5"].update(acc5.item(), n=batch_size)
         metric_logger.meters["img/s"].update(batch_size / (time.time() - start_time))
 
-        return metric_logger.acc1.global_avg, metric_logger.loss.global_avg
+    # 返回acc和loss
+    return metric_logger.acc1.global_avg, metric_logger.loss.global_avg
 
 
 def evaluate(model, criterion, data_loader, device, print_freq=100, log_suffix=""):
@@ -120,7 +125,8 @@ def main(args):
     utils.init_distributed_mode(args)  # 初始化分布式环境
     print(args)
 
-    if args.rank == 0:  # 在第一个进程中打印信息，并实例化tensorboard
+    if RANK in {-1, 0}:  # 在第一个进程中打印信息，并实例化tensorboard
+        print(f"[INFO] rank: {RANK}")
         print(f'[INFO] Start Tensorboard with "tensorboard --logdir={args.output_dir}", view at http://localhost:6006/')
         tb_writer = SummaryWriter(args.output_dir)
 
@@ -326,13 +332,14 @@ def main(args):
         is_best = acc1 > best_acc1
         best_acc1 = max(acc1, best_acc1)
 
-        if args.rank == 0:
+        if RANK in {-1, 0}:
             tag_scalar_dict = {
                 "train_loss": train_loss,
                 "train_acc": train_acc / 100,
                 "test_acc": acc1 / 100,
                 "test_loss": val_loss,
                 "best_acc1": best_acc1 / 100,
+                "lr": optimizer.param_groups[0]["lr"],
             }
 
             tb_writer.add_scalars(main_tag="loss_acc", tag_scalar_dict=tag_scalar_dict, global_step=epoch)
@@ -375,12 +382,12 @@ def get_args_parser(add_help=True):
     parser.add_argument(
         "-b", "--batch-size", default=128, type=int, help="images per gpu, the total batch size is $NGPU x batch_size"
     )
-    parser.add_argument("--epochs", default=90, type=int, metavar="N", help="number of total epochs to run")
+    parser.add_argument("--epochs", default=200, type=int, metavar="N", help="number of total epochs to run")
     parser.add_argument(
         "-j", "--workers", default=4, type=int, metavar="N", help="number of data loading workers (default: 4)"
     )
     parser.add_argument("--opt", default="sgd", type=str, help="optimizer")
-    parser.add_argument("--lr", default=0.1, type=float, help="initial learning rate")
+    parser.add_argument("--lr", default=0.01, type=float, help="initial learning rate")
     parser.add_argument("--momentum", default=0.9, type=float, metavar="M", help="momentum")
     parser.add_argument(
         "--wd",
@@ -417,7 +424,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--mixup-alpha", default=0.0, type=float, help="mixup alpha (default: 0.0)")
     parser.add_argument("--cutmix-alpha", default=0.0, type=float, help="cutmix alpha (default: 0.0)")
 
-    parser.add_argument("--lr-scheduler", default="steplr", type=str, help="the lr scheduler (default: steplr)")
+    parser.add_argument("--lr-scheduler", default="cosineannealinglr", type=str, help="the lr scheduler (default: cosineannealinglr)")
     parser.add_argument("--lr-warmup-epochs", default=0, type=int, help="the number of epochs to warmup (default: 0)")
     parser.add_argument(
         "--lr-warmup-method", default="linear", type=str, help="the warmup method (default: linear)"
