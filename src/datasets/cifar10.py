@@ -8,7 +8,7 @@ ROOT = FILE.parents[0]  # root directory of current file
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 
-_MEAN, _STD = (0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)
+_MEAN, _STD = (0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)
 
 train_transform = transforms.Compose([
     transforms.RandomCrop(32, padding=4),
