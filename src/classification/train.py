@@ -379,56 +379,27 @@ def get_args_parser(add_help=True):
     parser.add_argument("--data-path", default="~/datasets/", type=str, help="dataset path")
     # 模型架构
     parser.add_argument("--model", default="resnet18", type=str, help="model name")
-    parser.add_argument(
-        "-b", "--batch-size", default=128, type=int, help="images per gpu, the total batch size is $NGPU x batch_size"
-    )
+    parser.add_argument("-b", "--batch-size", default=128, type=int, help="images per gpu, the total batch size is $NGPU x batch_size")
     parser.add_argument("--epochs", default=200, type=int, metavar="N", help="number of total epochs to run")
-    parser.add_argument(
-        "-j", "--workers", default=4, type=int, metavar="N", help="number of data loading workers (default: 4)"
-    )
+    parser.add_argument("-j", "--workers", default=4, type=int, metavar="N", help="number of data loading workers (default: 4)")
     parser.add_argument("--opt", default="sgd", type=str, help="optimizer")
     parser.add_argument("--lr", default=0.01, type=float, help="initial learning rate")
     parser.add_argument("--momentum", default=0.9, type=float, metavar="M", help="momentum")
-    parser.add_argument(
-        "--wd",
-        "--weight-decay",
-        default=5e-4,
-        type=float,
-        metavar="W",
-        help="weight decay (default: 5e-4)",
-        dest="weight_decay",
-    )
-    parser.add_argument(
-        "--norm-weight-decay",
-        default=None,
-        type=float,
-        help="weight decay for Normalization layers (default: None, same value as --wd)",
-    )
-    parser.add_argument(
-        "--bias-weight-decay",
-        default=None,
-        type=float,
-        help="weight decay for bias parameters of all layers (default: None, same value as --wd)",
-    )
-    parser.add_argument(
-        "--transformer-embedding-decay",
-        default=None,
-        type=float,
-        help="weight decay for embedding parameters for vision transformer models (default: None, same value as --wd)",
-    )
+    parser.add_argument("--wd", "--weight-decay", default=5e-4, type=float, metavar="W", help="weight decay (default: 5e-4)", dest="weight_decay")
+    parser.add_argument("--norm-weight-decay", default=None, type=float, help="weight decay for Normalization layers (default: None, same value as --wd)")
+    parser.add_argument("--bias-weight-decay", default=None, type=float, help="weight decay for bias parameters of all layers (default: None, same value as --wd)")
+    parser.add_argument("--transformer-embedding-decay", default=None, type=float, help="weight decay for embedding parameters for vision transformer models (default: None, same value as --wd)")
+    
     # 标签平滑
-    parser.add_argument(
-        "--label-smoothing", default=0.0, type=float, help="label smoothing (default: 0.0)", dest="label_smoothing"
-    )
+    parser.add_argument("--label-smoothing", default=0.0, type=float, help="label smoothing (default: 0.0)", dest="label_smoothing")
+    
     # 下面两行是数据增强
     parser.add_argument("--mixup-alpha", default=0.0, type=float, help="mixup alpha (default: 0.0)")
     parser.add_argument("--cutmix-alpha", default=0.0, type=float, help="cutmix alpha (default: 0.0)")
 
     parser.add_argument("--lr-scheduler", default="cosineannealinglr", type=str, help="the lr scheduler (default: cosineannealinglr)")
     parser.add_argument("--lr-warmup-epochs", default=0, type=int, help="the number of epochs to warmup (default: 0)")
-    parser.add_argument(
-        "--lr-warmup-method", default="linear", type=str, help="the warmup method (default: linear)"
-    )
+    parser.add_argument("--lr-warmup-method", default="linear", type=str, help="the warmup method (default: linear)")
     parser.add_argument("--lr-warmup-decay", default=0.01, type=float, help="the decay for lr")
 
     parser.add_argument("--lr-step-size", default=30, type=int, help="decrease lr every step-size epochs")
@@ -442,20 +413,10 @@ def get_args_parser(add_help=True):
     parser.add_argument("--resume", default="", type=str, help="path of checkpoint")
     parser.add_argument("--start-epoch", default=0, type=int, metavar="N", help="start epoch")
 
-    parser.add_argument(
-        "--sync-bn",
-        dest="sync_bn",
-        help="Use sync batch norm",
-        action="store_true",
-    )
+    parser.add_argument("--sync-bn", dest="sync_bn", help="Use sync batch norm", action="store_true")
 
     # 是否只是测试一下给定的权重
-    parser.add_argument(
-        "--test-only",
-        dest="test_only",
-        help="Only test the model",
-        action="store_true",
-    )
+    parser.add_argument("--test-only", dest="test_only", help="Only test the model", action="store_true")
 
     # 混合精度训练
     parser.add_argument("--amp", action="store_true", help="Use torch.cuda.amp for mixed precision training")
@@ -465,32 +426,16 @@ def get_args_parser(add_help=True):
     parser.add_argument("--dist-url", default="env://", type=str, help="url used to set up distributed training")
 
     # 模型参数是否EMA
-    parser.add_argument(
-        "--model-ema", action="store_true", help="enable tracking Exponential Moving Average of model parameters"
-    )
-    parser.add_argument(
-        "--model-ema-steps",
-        type=int,
-        default=32,
-        help="the number of iterations that controls how often to update the EMA model (default: 32)",
-    )
-    parser.add_argument(
-        "--model-ema-decay",
-        type=float,
-        default=0.99998,
-        help="decay factor for Exponential Moving Average of model parameters (default: 0.99998)",
-    )
+    parser.add_argument("--model-ema", action="store_true", help="enable tracking Exponential Moving Average of model parameters")
+    parser.add_argument("--model-ema-steps", type=int, default=32, help="the number of iterations that controls how often to update the EMA model (default: 32)")
+    parser.add_argument("--model-ema-decay", type=float, default=0.99998, help="decay factor for Exponential Moving Average of model parameters (default: 0.99998)")
 
-    parser.add_argument(
-        "--use-deterministic-algorithms", action="store_true", help="Forces the use of deterministic algorithms only."
-    )
+    parser.add_argument("--use-deterministic-algorithms", action="store_true", help="Forces the use of deterministic algorithms only.")
 
     parser.add_argument("--clip-grad-norm", default=None, type=float, help="the maximum gradient norm (default None)")
 
     parser.add_argument("--ra-sampler", action="store_true", help="whether to use Repeated Augmentation in training")
-    parser.add_argument(
-        "--ra-reps", default=3, type=int, help="number of repetitions for Repeated Augmentation (default: 3)"
-    )
+    parser.add_argument("--ra-reps", default=3, type=int, help="number of repetitions for Repeated Augmentation (default: 3)")
 
     parser.add_argument("--weights", default=None, type=str, help="the weights enum name to load")
 
