@@ -14,6 +14,14 @@ from torch import nn
 from torch.utils.data.dataloader import default_collate
 from torch.utils.tensorboard import SummaryWriter
 
+import sys
+from pathlib import Path
+
+FILE = Path(__file__).resolve()
+ROOT = FILE.parents[1]  # root directory
+if str(ROOT) not in sys.path:
+    sys.path.append(str(ROOT))  # add ROOT to PATH
+
 import transforms
 from utils import torch_utils as utils
 from sampler import RASampler
