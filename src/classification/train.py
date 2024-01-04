@@ -26,6 +26,7 @@ import transforms
 from utils import torch_utils as utils
 from sampler import RASampler
 from datasets.cifar10 import get_cifar10
+from utils.misc import print_args
 
 best_acc1 = 0
 
@@ -131,7 +132,7 @@ def main(args):
         utils.mkdir(args.output_dir)
 
     utils.init_distributed_mode(args)  # 初始化分布式环境
-    print(args)
+    print_args(args)
 
     if RANK in {-1, 0}:  # 在第一个进程中打印信息，并实例化tensorboard
         print(f"[INFO] rank: {RANK}")
