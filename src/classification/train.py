@@ -25,7 +25,7 @@ if str(ROOT) not in sys.path:
 import transforms
 from utils import torch_utils as utils
 from sampler import RASampler
-from datasets.cifar10 import get_cifar10
+from datasets import get_dataset
 from utils.misc import print_args
 
 best_acc1 = 0
@@ -157,8 +157,10 @@ def main(args):
 
     print("Loading data")
     # TODO: 自行加载数据集
-    train_dataset = get_cifar10(args.data_path, True)
-    test_dataset = get_cifar10(args.data_path, False)
+    train_dataset, test_dataset, num_classes = get_dataset(
+        data_name=args.data_name,
+        data_root=args.data_path,
+    )
 
     # 采样器
     if args.distributed:
@@ -172,8 +174,6 @@ def main(args):
         test_sampler = torch.utils.data.SequentialSampler(test_dataset)
 
     collate_fn = None
-
-    num_classes = args.num_classes
 
     mixup_transforms = []
     if args.mixup_alpha > 0.0:
@@ -386,6 +386,8 @@ def get_args_parser(add_help=True):
 
     # 数据集路径
     parser.add_argument("--data-path", default="~/datasets/", type=str, help="dataset path")
+    parser.add_argument("--data_name", default="cifar10", type=str, help="dataset name")
+
     # 模型架构
     parser.add_argument("--model", default="resnet18", type=str, help="model name")
     parser.add_argument("-b", "--batch-size", default=128, type=int, help="images per gpu, the total batch size is $NGPU x batch_size")
@@ -447,8 +449,6 @@ def get_args_parser(add_help=True):
     parser.add_argument("--ra-reps", default=3, type=int, help="number of repetitions for Repeated Augmentation (default: 3)")
 
     parser.add_argument("--weights", default=None, type=str, help="the weights enum name to load")
-
-    parser.add_argument("--num_classes", default=10, type=int, help="number of classes")
 
     return parser
 

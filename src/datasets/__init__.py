@@ -2,14 +2,28 @@ import sys
 from pathlib import Path
 
 FILE = Path(__file__).resolve()
-ROOT = FILE.parents[0]  # root directory of current file
+ROOT = FILE.parents[1]  # root directory of current file
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 
+from datasets import cifar10, cifar100, svhn, stl10
 
-def main():
-    print("Hello World")
+
+def get_dataset(data_name, data_root, **kwargs):
+    print(f"==> Loading {data_name} dataset...")
+
+    if data_name == 'cifar10':
+        return cifar10.get_cifar10(data_root, **kwargs)
+    elif data_name == 'cifar100':
+        return cifar100.get_cifar100(data_root, **kwargs)
+    elif data_name == 'svhn':
+        return svhn.get_svhn(data_root, **kwargs)
+    elif data_name == 'stl10':
+        return stl10.get_stl10(data_root, **kwargs)
+    else:
+        raise ValueError(f'Not implement dataset: {data_name}')
+
 
 
 if __name__ == "__main__":
-    main()
+    get_dataset('imagenet', "~/datasets")

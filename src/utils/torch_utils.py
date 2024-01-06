@@ -270,6 +270,7 @@ def init_distributed_mode(args):
         backend=args.dist_backend, init_method=args.dist_url, world_size=args.world_size, rank=args.rank
     )
     torch.distributed.barrier()
+    # 设置只在 master 进程上打印日志，禁用其他进程的打印功能
     setup_for_distributed(args.rank == 0)
 
 

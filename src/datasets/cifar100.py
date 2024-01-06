@@ -23,13 +23,21 @@ val_transform = transforms.Compose([
 ])
 
 
-def get_cifar100(root="E:\dataset", train_flag=True):
+def get_cifar100(data_root='data', **kwargs):
+    num_classes = 100
 
-    dataset = datasets.CIFAR100(
-        root=root,
-        train=train_flag,
+    train_dataset = datasets.CIFAR100(
+        root=data_root,
+        train=True,
         download=True,
-        transform=train_transform if train_flag else val_transform,
+        transform=train_transform,
     )
 
-    return dataset
+    test_dataset = datasets.CIFAR100(
+        root=data_root,
+        train=False,
+        download=True,
+        transform=val_transform,
+    )
+
+    return train_dataset, test_dataset, num_classes
