@@ -147,15 +147,16 @@ def main(args):
         if torch.backends.mps.is_available()
         else "cpu"
     )
-    print(f"Using {device} device")
+    print(f"[INFO] Using {device} device")
 
+    # TODO: 初始化种子
     if args.use_deterministic_algorithms:
         torch.backends.cudnn.benchmark = False
         torch.use_deterministic_algorithms(True)
     else:
         torch.backends.cudnn.benchmark = True
 
-    print("Loading data")
+    print("[INFO] Loading data")
     # TODO: 自行加载数据集
     train_dataset, test_dataset, num_classes = get_dataset(
         data_name=args.data_name,
@@ -175,6 +176,7 @@ def main(args):
 
     collate_fn = None
 
+    # mixup 和 cutmix 数据增强
     mixup_transforms = []
     if args.mixup_alpha > 0.0:
         mixup_transforms.append(transforms.RandomMixup(num_classes, p=1.0, alpha=args.mixup_alpha))
@@ -186,7 +188,7 @@ def main(args):
         def collate_fn(batch):
             return mixupcutmix(*default_collate(batch))
 
-    print("Creating data loaders")
+    print("[INFO] Creating data loaders")
     data_loader = torch.utils.data.DataLoader(
         train_dataset,
         batch_size=args.batch_size,
@@ -201,7 +203,7 @@ def main(args):
         num_workers=args.workers,
     )
 
-    print("Creating model")
+    print("[INFO] Creating model")
     # TODO: 模型架构
     model = torchvision.models.get_model(args.model, weights=args.weights, num_classes=num_classes)
     model.to(device)
@@ -326,7 +328,7 @@ def main(args):
         return
 
     # 开始训练
-    print("Start training")
+    print("[INFO] Start training")
     start_time = time.time()
     for epoch in range(args.start_epoch, args.epochs):
         if args.distributed:
