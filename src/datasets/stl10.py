@@ -1,5 +1,7 @@
 from torchvision import datasets, transforms
 
+_MEAN, _STD = (0.4467, 0.4398, 0.4066), (0.2603, 0.2566, 0.2713)
+
 
 def get_stl10(data_root='data', **kwargs):
 
@@ -13,7 +15,7 @@ def get_stl10(data_root='data', **kwargs):
             transforms.RandomCrop(96, padding=4),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            transforms.Normalize(_MEAN, _STD)
         ])
     )
 
@@ -23,7 +25,7 @@ def get_stl10(data_root='data', **kwargs):
         download=True,
         transform=transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            transforms.Normalize(_MEAN, _STD)
         ])
     )
 
