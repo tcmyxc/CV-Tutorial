@@ -27,6 +27,7 @@ from utils import torch_utils as utils
 from sampler import RASampler
 from datasets import get_dataset
 from utils.misc import print_args
+from utils.yolo_utils import init_seeds
 
 best_acc1 = 0
 
@@ -133,6 +134,9 @@ def main(args):
 
     utils.init_distributed_mode(args)  # 初始化分布式环境
     print_args(args)
+
+    # 固定种子
+    init_seeds(seed=args.seed)
 
     if RANK in {-1, 0}:  # 在第一个进程中打印信息，并实例化tensorboard
         print(f"[INFO] rank: {RANK}")
@@ -451,6 +455,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--ra-reps", default=3, type=int, help="number of repetitions for Repeated Augmentation (default: 3)")
 
     parser.add_argument("--weights", default=None, type=str, help="the weights enum name to load")
+    parser.add_argument("--seed", default=0, type=int)
 
     return parser
 
