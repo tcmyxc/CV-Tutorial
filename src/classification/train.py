@@ -153,13 +153,6 @@ def main(args):
     )
     print(f"[INFO] Using {device} device")
 
-    # TODO: 初始化种子
-    if args.use_deterministic_algorithms:
-        torch.backends.cudnn.benchmark = False
-        torch.use_deterministic_algorithms(True)
-    else:
-        torch.backends.cudnn.benchmark = True
-
     print("[INFO] Loading data")
     # TODO: 自行加载数据集
     train_dataset, test_dataset, num_classes = get_dataset(
