@@ -140,6 +140,13 @@ def main(args):
 
     if RANK in {-1, 0}:  # 在第一个进程中打印信息，并实例化tensorboard
         print(f"[INFO] rank: {RANK}")
+        args.output_dir = os.path.join(
+            args.output_dir,
+            f"{datetime.datetime.now().strftime('%Y%m%d/%H%M%S')}"
+        )
+        if not os.path.exists(args.output_dir):
+            os.makedirs(args.output_dir)
+        print(f"[INFO] result path: {os.path.abspath(args.output_dir)}\n", flush=True)
         print(f'[INFO] Start Tensorboard with "tensorboard --logdir={args.output_dir}", view at http://localhost:6006/')
         tb_writer = SummaryWriter(args.output_dir)
 
@@ -418,7 +425,7 @@ def get_args_parser(add_help=True):
 
     parser.add_argument("--print-freq", default=10, type=int, help="print frequency")
     # 模型保存路径
-    parser.add_argument("--output-dir", default=".", type=str, help="path to save outputs")
+    parser.add_argument("--output-dir", default="./work_dir", type=str, help="path to save outputs")
     # 中断之后恢复训练使用
     parser.add_argument("--resume", default="", type=str, help="path of checkpoint")
     parser.add_argument("--start-epoch", default=0, type=int, metavar="N", help="start epoch")
