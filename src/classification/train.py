@@ -4,6 +4,7 @@ DDP模板
 
 import datetime
 import os
+import os.path as osp
 import time
 import warnings
 
@@ -26,7 +27,7 @@ import transforms
 from utils import torch_utils as utils
 from sampler import RASampler
 from datasets import get_dataset
-from utils.misc import print_args
+from utils.misc import print_args, Logger
 from utils.yolo_utils import init_seeds
 
 best_acc1 = 0
@@ -131,6 +132,9 @@ def main(args):
 
     if args.output_dir:
         utils.mkdir(args.output_dir)
+        timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        log_file_name = f"{timestamp}_{args.data_name}_{args.model}.log"
+        sys.stdout = Logger(osp.join(args.output_dir, log_file_name))
 
     utils.init_distributed_mode(args)  # 初始化分布式环境
     print_args(args)
@@ -142,7 +146,7 @@ def main(args):
         print(f"[INFO] rank: {RANK}")
         args.output_dir = os.path.join(
             args.output_dir,
-            f"{datetime.datetime.now().strftime('%Y%m%d/%H%M%S')}"
+            timestamp
         )
         if not os.path.exists(args.output_dir):
             os.makedirs(args.output_dir)
