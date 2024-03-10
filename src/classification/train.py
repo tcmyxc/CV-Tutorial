@@ -130,9 +130,26 @@ def evaluate(model, criterion, data_loader, device, print_freq=100, log_suffix="
 def main(args):
     global best_acc1
 
-    if args.output_dir:
-        utils.mkdir(args.output_dir)
+    if RANK in {-1, 0}:  # 在第一个进程中打印信息，并实例化tensorboard
+        print(f"[INFO] rank: {RANK}")
+
+        # 获取当前时间
         timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+
+        # 创建输出结果保存路径
+        args.output_dir = os.path.join(
+            args.output_dir,
+            timestamp
+        )
+        if not os.path.exists(args.output_dir):
+            os.makedirs(args.output_dir)
+        print(f"[INFO] result path: {os.path.abspath(args.output_dir)}\n", flush=True)
+
+        # 实例化tensorboard
+        tb_writer = SummaryWriter(args.output_dir)
+        print(f'[INFO] Start Tensorboard with "tensorboard --logdir={args.output_dir}", view at http://localhost:6006/')
+
+        # 日志文件名
         log_file_name = f"{timestamp}_{args.data_name}_{args.model}.log"
         sys.stdout = Logger(osp.join(args.output_dir, log_file_name))
 
@@ -141,18 +158,6 @@ def main(args):
 
     # 固定种子
     init_seeds(seed=args.seed)
-
-    if RANK in {-1, 0}:  # 在第一个进程中打印信息，并实例化tensorboard
-        print(f"[INFO] rank: {RANK}")
-        args.output_dir = os.path.join(
-            args.output_dir,
-            timestamp
-        )
-        if not os.path.exists(args.output_dir):
-            os.makedirs(args.output_dir)
-        print(f"[INFO] result path: {os.path.abspath(args.output_dir)}\n", flush=True)
-        print(f'[INFO] Start Tensorboard with "tensorboard --logdir={args.output_dir}", view at http://localhost:6006/')
-        tb_writer = SummaryWriter(args.output_dir)
 
     # Get cpu, gpu or mps device for training.
     device = (
