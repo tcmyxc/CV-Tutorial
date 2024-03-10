@@ -12,8 +12,8 @@ if str(ROOT) not in sys.path:
 
 
 def main():
-    training_data = datasets.CIFAR10(
-        root="E:/datasets",
+    training_data = datasets.MNIST(
+        root="~/datasets",
         train=True,
         download=True,
         transform=ToTensor(),
@@ -25,18 +25,19 @@ def main():
 
     imgs = [item[0] for item in training_data]  # item[0] and item[1] are image and its label
     imgs = torch.stack(imgs, dim=0).numpy()
+    channels = imgs.shape[1]
 
     # calculate mean over each channel (r,g,b)
     mean_r = imgs[:, 0, :, :].mean()
-    mean_g = imgs[:, 1, :, :].mean()
-    mean_b = imgs[:, 2, :, :].mean()
+    mean_g = imgs[:, 1, :, :].mean() if channels == 3 else 0
+    mean_b = imgs[:, 2, :, :].mean() if channels == 3 else 0
     # print(mean_r, mean_g, mean_b)
     print(f"mean: ({mean_r:.4f}, {mean_g:.4f}, {mean_b:.4f})")
 
     # calculate std over each channel (r,g,b)
     std_r = imgs[:, 0, :, :].std()
-    std_g = imgs[:, 1, :, :].std()
-    std_b = imgs[:, 2, :, :].std()
+    std_g = imgs[:, 1, :, :].std() if channels == 3 else 0
+    std_b = imgs[:, 2, :, :].std() if channels == 3 else 0
     # print(std_r, std_g, std_b)
     print(f"std:  ({std_r:.4f}, {std_g:.4f}, {std_b:.4f})")
 
