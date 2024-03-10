@@ -150,7 +150,7 @@ def main(args):
         print(f'[INFO] Start Tensorboard with "tensorboard --logdir={args.output_dir}", view at http://localhost:6006/')
 
         # 日志文件名
-        log_file_name = f"{timestamp}_{args.data_name}_{args.model}.log"
+        log_file_name = f"{args.data_name}_{args.model}.log"
         sys.stdout = Logger(osp.join(args.output_dir, log_file_name))
 
     utils.init_distributed_mode(args)  # 初始化分布式环境

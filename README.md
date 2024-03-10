@@ -52,5 +52,27 @@ ssh-keygen -t rsa -C "你的邮箱"
 1. https://github.com/DeepVoltaire/AutoAugment
 2. https://albumentations.ai/docs/
 
-## 常用库
+
+## 训练的trick
+
+ResNet18 + CIFAR-10
+
+基础配置：
+- 学习率：0.01
+- batch size：128
+- epoch：200
+- weight decay：5e-4
+- 学习率调度器：余弦
+- 优化器：SGD
+
+
+实验结果
+
+| Parameter                | value  |
+| ------------------------ | ------ |
+| 基础配置                |  86.91   |
+| +预热5轮 | 87.20 |
+| +AA | |
+
+
 
