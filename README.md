@@ -61,18 +61,20 @@ ResNet18 + CIFAR-10
 - 学习率：0.01
 - batch size：128
 - epoch：200
+- momentum：0.9
 - weight decay：5e-4
 - 学习率调度器：余弦
 - 优化器：SGD
 
 
 实验结果
-
-| Parameter                | value  |
-| ------------------------ | ------ |
-| 基础配置                |  86.91   |
-| +预热5轮 | 87.20 |
-| +AA | |
+- 基础配置: 86.91
+	- +预热5轮: 87.20 (+0.29)
+		- +AA: 89.41
+			- +Mixup: 
+			- +Cutout: 90.02
+				- +label smoothing: 89.21
+			
 
 
 
