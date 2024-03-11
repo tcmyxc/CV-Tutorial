@@ -9,6 +9,7 @@ if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 
 from .autoaugment import CIFAR10Policy
+from .cutout import Cutout
 
 _MEAN, _STD = (0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)
 
@@ -17,6 +18,7 @@ train_transform = transforms.Compose([
     transforms.RandomHorizontalFlip(),
     CIFAR10Policy(),
     transforms.ToTensor(),
+    Cutout(n_holes=1, length=16),
     transforms.Normalize(_MEAN, _STD),
 ])
 
