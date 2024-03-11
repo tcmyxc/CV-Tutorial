@@ -18,7 +18,7 @@ train_transform = transforms.Compose([
     transforms.RandomHorizontalFlip(),
     CIFAR10Policy(),
     transforms.ToTensor(),
-    Cutout(n_holes=1, length=16),
+    # Cutout(n_holes=1, length=16),
     transforms.Normalize(_MEAN, _STD),
 ])
 
