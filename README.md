@@ -49,8 +49,9 @@ ssh-keygen -t rsa -C "你的邮箱"
 
 推荐仓库：
 
-1. https://github.com/DeepVoltaire/AutoAugment
-2. https://albumentations.ai/docs/
+1. [AutoAugment](https://github.com/DeepVoltaire/AutoAugment)
+2. [Cutout](https://github.com/uoguelph-mlrg/Cutout)
+3. https://albumentations.ai/docs/
 
 
 ## 训练的trick
