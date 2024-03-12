@@ -71,7 +71,7 @@ ResNet18 + CIFAR-10 实验结果
 	- +预热5轮: 87.20 (+0.29)
 		- +label smoothing: 87.21 (+0.01)
 		- +AA: 89.41 (+2.21)
-			- +label smoothing: 89.24
+			- +label smoothing: 89.24 (-0.17)
 			- +Mixup: 89.67 (+0.26)
 				- +Cutmix: 89.78 (+0.11)
 					- +label smoothing: 89.32 (-0.46)
