@@ -56,8 +56,6 @@ ssh-keygen -t rsa -C "你的邮箱"
 
 ## 训练的trick
 
-ResNet18 + CIFAR-10
-
 基础配置：
 - 学习率：0.01
 - batch size：128
@@ -68,12 +66,15 @@ ResNet18 + CIFAR-10
 - 优化器：SGD
 
 
-实验结果
+ResNet18 + CIFAR-10 实验结果
 - 基础配置: 86.91
 	- +预热5轮: 87.20 (+0.29)
+		- +label smoothing: 87.21 (+0.01)
 		- +AA: 89.41 (+2.21)
+			- +label smoothing: 89.24
 			- +Mixup: 89.67 (+0.26)
-				- +Cutmix: 
+				- +Cutmix: 89.78 (+0.11)
+					- +label smoothing: 89.32 (-0.46)
 			- +Cutout: 90.02 (+0.61)
 				- +label smoothing: 89.21 (-0.81)
 			
