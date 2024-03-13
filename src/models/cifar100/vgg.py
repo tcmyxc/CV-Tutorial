@@ -72,7 +72,7 @@ def vgg13_bn():
     return VGG(make_layers(cfg['B'], batch_norm=True))
 
 
-@register_model()
+@register_model("vgg16")
 def vgg16_bn(**kwargs):
     return VGG(make_layers(cfg['D'], batch_norm=True), **kwargs)
 
