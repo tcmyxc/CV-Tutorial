@@ -86,3 +86,10 @@ ResNet50 + CIFAR-10 实验结果
 		- +AA: 89.92
 			- +Cutout: 90.08
 		
+
+ResNet50 + CIFAR-10 实验结果 (CIFAR100仓库实现)
+- 基础配置: 
+	- +预热5轮: 
+		- +AA: 
+			- +Cutout: 96.89
+		
