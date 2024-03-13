@@ -1,6 +1,7 @@
 from pathlib import Path
 import sys
 
+import torch
 import torch.nn as nn
 from functools import partial
 
@@ -16,6 +17,12 @@ from models.cifar100 import (
     vgg,
     resnet,
     resnext,
+    senet,
+    squeezenet,
+    wideresidual
+)
+from models import (
+    wide_resnet,
 )
 
 
@@ -71,9 +78,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    for model_name in list_models():
-        args.model = model_name
-        model = load_model(args, num_classes=10)
-        print(model)
-        summary(model, input_size=(3, 32, 32), batch_size=8, device="cpu")
+    args.model = "WRN28_10"
+    model = load_model(args, num_classes=10)
+    print(model)
+    summary(model, input_size=(3, 32, 32), batch_size=8, device="cpu")
+
+    print(model(torch.rand(8, 3, 32, 32)).shape)
 
