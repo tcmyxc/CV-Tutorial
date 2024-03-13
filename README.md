@@ -78,3 +78,11 @@ ResNet18 + CIFAR-10 实验结果
 			- +Cutout: 90.02 (+0.61)
 				- +label smoothing: 89.21 (-0.81)
 			
+
+ResNet50 + CIFAR-10 实验结果
+- 基础配置: 83.89
+	- +预热5轮: 87.18
+		- +label smoothing: 85.78
+		- +AA: 89.92
+			- +Cutout: 90.08
+		
