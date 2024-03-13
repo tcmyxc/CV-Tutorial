@@ -27,6 +27,7 @@ import transforms
 from utils import torch_utils as utils
 from sampler import RASampler
 from datasets import get_dataset
+from models import load_model
 from utils.misc import print_args, Logger
 from utils.yolo_utils import init_seeds
 
@@ -218,7 +219,7 @@ def main(args):
 
     print("[INFO] Creating model")
     # TODO: 模型架构
-    model = torchvision.models.get_model(args.model, weights=args.weights, num_classes=num_classes)
+    model = load_model(args, num_classes)
     model.to(device)
 
     if args.distributed and args.sync_bn:
@@ -405,6 +406,13 @@ def get_args_parser(add_help=True):
 
     # 模型架构
     parser.add_argument("--model", default="resnet18", type=str, help="model name")
+    parser.add_argument(
+        "--model_lib",
+        default="torch", type=str,
+        choices=["torch", "timm", "cifar100"],
+        help="model library",
+    )
+
     parser.add_argument("-b", "--batch-size", default=128, type=int, help="images per gpu, the total batch size is $NGPU x batch_size")
     parser.add_argument("--epochs", default=200, type=int, metavar="N", help="number of total epochs to run")
     parser.add_argument("-j", "--workers", default=4, type=int, metavar="N", help="number of data loading workers (default: 4)")
