@@ -1,4 +1,5 @@
 # modify by Wenxiang Xu (tcmyxc)
+
 # From https://github.com/xternalz/WideResNet-pytorch
 
 import math
@@ -100,9 +101,11 @@ class WideResNet(nn.Module):
 
 @register_model('WRN16_8')
 def WRN16_8(**kwargs):
+    "for svhn"
     return WideResNet(depth=16, widen_factor=8, dropRate=0.4, **kwargs)
 
 
 @register_model('WRN28_10')
 def WRN28_10(**kwargs):
+    "for cifar10/cifar100"
     return WideResNet(depth=28, widen_factor=10, dropRate=0.3, **kwargs)
