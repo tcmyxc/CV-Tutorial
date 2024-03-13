@@ -13,7 +13,9 @@ if str(ROOT) not in sys.path:
 
 from models._api import get_model, list_models
 from models.cifar100 import (
+    vgg,
     resnet,
+    resnext,
 )
 
 
@@ -36,7 +38,10 @@ def load_model(args, num_classes=10, **kwargs):
     else:
         raise NotImplementedError(args.model)
 
-    return model
+    if model is not None:
+        return model
+    else:
+        raise NotImplementedError(f"{args.model_lib} library, {args.model} arch not implemented")
 
 
 def get_act_layer(act_layer):
@@ -49,5 +54,26 @@ def get_act_layer(act_layer):
 
 
 if __name__ == "__main__":
+    import argparse
+    from torchsummary import summary
+
     print(list_models())
+
+    parser = argparse.ArgumentParser()
+    # 模型架构
+    parser.add_argument("--model", default="", type=str, help="model name")
+    parser.add_argument(
+        "--model_lib",
+        default="cifar100", type=str,
+        choices=["torch", "timm", "cifar100"],
+        help="model library",
+    )
+
+    args = parser.parse_args()
+
+    for model_name in list_models():
+        args.model = model_name
+        model = load_model(args, num_classes=10)
+        print(model)
+        summary(model, input_size=(3, 32, 32), batch_size=8, device="cpu")
 
