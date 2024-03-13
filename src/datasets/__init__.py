@@ -24,6 +24,5 @@ def get_dataset(data_name, data_root, **kwargs):
         raise ValueError(f'Not implement dataset: {data_name}')
 
 
-
 if __name__ == "__main__":
     get_dataset('imagenet', "~/datasets")
