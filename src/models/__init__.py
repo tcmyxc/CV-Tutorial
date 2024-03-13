@@ -19,7 +19,15 @@ from models.cifar100 import (
     resnext,
     senet,
     squeezenet,
-    wideresidual
+    wideresidual,
+    shufflenet,
+    shufflenetv2,
+    mobilenetv2,
+    densenet,
+    googlenet,
+    inceptionv3,
+    inceptionv4,
+    xception,
 )
 from models import (
     wide_resnet,
@@ -78,10 +86,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    args.model = "WRN28_10"
+    args.model = "vgg16"
     model = load_model(args, num_classes=10)
-    print(model)
-    summary(model, input_size=(3, 32, 32), batch_size=8, device="cpu")
+    # print(model)
+    # summary(model, input_size=(3, 32, 32), batch_size=8, device="cpu")
 
     print(model(torch.rand(8, 3, 32, 32)).shape)
 
