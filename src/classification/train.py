@@ -30,6 +30,7 @@ from datasets import get_dataset
 from models import load_model
 from utils.misc import print_args, Logger
 from utils.yolo_utils import init_seeds
+from loss import get_loss_fn
 
 best_acc1 = 0
 
@@ -225,7 +226,8 @@ def main(args):
     if args.distributed and args.sync_bn:
         model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
 
-    criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
+    # 损失函数
+    criterion = get_loss_fn(args)
 
     custom_keys_weight_decay = []
     if args.bias_weight_decay is not None:
@@ -393,6 +395,7 @@ def main(args):
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     print(f"\n[INFO] best acc: {best_acc1:.2f}, err rate: {(100.0 - best_acc1):.2f}")
     print(f"Training time {total_time_str}")
+    tb_writer.close()
 
 
 def get_args_parser(add_help=True):
@@ -423,8 +426,10 @@ def get_args_parser(add_help=True):
     parser.add_argument("--norm-weight-decay", default=None, type=float, help="weight decay for Normalization layers (default: None, same value as --wd)")
     parser.add_argument("--bias-weight-decay", default=None, type=float, help="weight decay for bias parameters of all layers (default: None, same value as --wd)")
     parser.add_argument("--transformer-embedding-decay", default=None, type=float, help="weight decay for embedding parameters for vision transformer models (default: None, same value as --wd)")
-    
-    # 标签平滑
+
+    # 损失函数
+    parser.add_argument("--loss_type", default="ce", type=str, help="loss function")
+    # CE Loss 的标签平滑参数
     parser.add_argument("--label-smoothing", default=0.0, type=float, help="label smoothing (default: 0.0)", dest="label_smoothing")
     
     # 下面两行是数据增强
