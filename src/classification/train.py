@@ -137,11 +137,11 @@ def main(args):
         timestamp = datetime.datetime.now()
 
         # 创建输出结果保存路径
-        args.output_dir = os.path.join(
+        args.output_dir = osp.join(
             args.output_dir,
             timestamp.strftime('%Y%m%d/%H%M%S'),
         )
-        if not os.path.exists(args.output_dir):
+        if not osp.exists(args.output_dir):
             os.makedirs(args.output_dir)
 
         # 日志文件名
@@ -150,11 +150,13 @@ def main(args):
         sys.stdout = Logger(osp.join(args.output_dir, log_file_name))
 
         print(f"[INFO] rank: {RANK}")
-        print(f"[INFO] result path: {os.path.abspath(args.output_dir)}\n", flush=True)
+        print(f"[INFO] result path: {osp.abspath(args.output_dir)}\n", flush=True)
 
         # 实例化tensorboard
         tb_writer = SummaryWriter(args.output_dir)
-        print(f'[INFO] Start Tensorboard with "tensorboard --logdir={args.output_dir}", view at http://localhost:6006/\n')
+        print(f'[INFO] Start Tensorboard with '
+              f'"tensorboard --logdir={osp.abspath(args.output_dir)}", '
+              f'view at http://localhost:6006/\n')
 
     utils.init_distributed_mode(args)  # 初始化分布式环境
     print_args(args)
@@ -388,9 +390,9 @@ def main(args):
             # save best checkpoint
             if is_best:
                 print(f"\n[FEAT] best acc: {best_acc1:.2f}\n")
-                utils.save_on_master(checkpoint, os.path.join(args.output_dir, "best_model.pth"))
+                utils.save_on_master(checkpoint, osp.join(args.output_dir, "best_model.pth"))
 
-            utils.save_on_master(checkpoint, os.path.join(args.output_dir, "checkpoint.pth"))
+            utils.save_on_master(checkpoint, osp.join(args.output_dir, "checkpoint.pth"))
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
