@@ -54,6 +54,19 @@ ssh-keygen -t rsa -C "你的邮箱"
 3. https://albumentations.ai/docs/
 
 
+## 服务器使用本地梯子
+
+```bash
+# 下面这行在本地运行
+ssh -CqTnN -R 127.0.0.1:45588:127.0.0.1:7890 `主机名`
+
+# 下面的在服务器运行
+export http_proxy=http://127.0.0.1:45588
+export https_proxy=http://127.0.0.1:45588
+```
+
+
+
 ## 训练的trick
 
 基础配置：
@@ -95,14 +108,3 @@ ResNet50 + CIFAR-10 实验结果 (CIFAR100仓库实现)
 			- +Cutout: 96.89
 		
 
-## 服务器使用本地梯子
-
-```bash
-
-# 下面这行在本地运行
-ssh -CqTnN -R 127.0.0.1:45588:127.0.0.1:7890 `主机名`
-
-# 下面的在服务器运行
-export http_proxy=http://127.0.0.1:45588
-export https_proxy=http://127.0.0.1:45588
-```
