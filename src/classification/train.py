@@ -440,7 +440,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--lr-gamma", default=0.1, type=float, help="decrease lr by a factor of lr-gamma")
     parser.add_argument("--lr-min", default=0.0, type=float, help="minimum lr of lr schedule (default: 0.0)")
 
-    parser.add_argument("--print-freq", default=10, type=int, help="print frequency")
+    parser.add_argument("--print-freq", default=100, type=int, help="print frequency")
     # 模型保存路径
     parser.add_argument("--output-dir", default="./work_dir", type=str, help="path to save outputs")
     # 中断之后恢复训练使用
