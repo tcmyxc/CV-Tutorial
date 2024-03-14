@@ -36,9 +36,8 @@ from models import (
 
 def load_model(args, num_classes=10, **kwargs):
     print(f'\n[INFO] load model: {args.model}, from lib: {args.model_lib}')
-    act_layer = kwargs.pop("act_layer", "relu")
-    print('\n[INFO] act_layer:', act_layer)
-    act_layer = get_act_layer(act_layer)
+    print('\n[INFO] act_layer:', args.act_layer)
+    act_layer = get_act_layer(args.act_layer)
     kwargs["act_layer"] = act_layer
 
     model = None
@@ -49,7 +48,7 @@ def load_model(args, num_classes=10, **kwargs):
         # TODO
     elif args.model_lib == "cifar100":
         if args.model in list_models():
-            model = get_model(args.model, num_classes=num_classes)
+            model = get_model(args.model, num_classes=num_classes, **kwargs)
     else:
         raise NotImplementedError(args.model)
 
@@ -83,12 +82,17 @@ if __name__ == "__main__":
         choices=["torch", "timm", "cifar100"],
         help="model library",
     )
+    parser.add_argument(
+        "--act_layer",
+        default="gelu", type=str,
+        help="activation function",
+    )
 
     args = parser.parse_args()
 
-    args.model = "vgg16"
-    model = load_model(args, num_classes=10)
-    # print(model)
+    args.model = "resnet50"
+    model = load_model(args, num_classes=1000)
+    print(model)
     # summary(model, input_size=(3, 32, 32), batch_size=8, device="cpu")
 
     print(model(torch.rand(8, 3, 32, 32)).shape)

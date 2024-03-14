@@ -434,6 +434,9 @@ def get_args_parser(add_help=True):
     parser.add_argument("--loss_type", default="ce", type=str, help="loss function")
     # CE Loss 的标签平滑参数
     parser.add_argument("--label-smoothing", default=0.0, type=float, help="label smoothing (default: 0.0)", dest="label_smoothing")
+
+    # 激活函数
+    parser.add_argument("--act_layer", default="relu", type=str, help="activation function")
     
     # 下面两行是数据增强
     parser.add_argument("--mixup-alpha", default=0.0, type=float, help="mixup alpha (default: 0.0)")
