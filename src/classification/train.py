@@ -136,12 +136,12 @@ def main(args):
         print(f"[INFO] rank: {RANK}")
 
         # 获取当前时间
-        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        timestamp = datetime.datetime.now()
 
         # 创建输出结果保存路径
         args.output_dir = os.path.join(
             args.output_dir,
-            timestamp
+            timestamp.strftime('%Y%m%d/%H%M%S'),
         )
         if not os.path.exists(args.output_dir):
             os.makedirs(args.output_dir)
