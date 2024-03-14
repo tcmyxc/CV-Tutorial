@@ -133,8 +133,6 @@ def main(args):
     global best_acc1
 
     if RANK in {-1, 0}:  # 在第一个进程中打印信息，并实例化tensorboard
-        print(f"[INFO] rank: {RANK}")
-
         # 获取当前时间
         timestamp = datetime.datetime.now()
 
@@ -145,15 +143,18 @@ def main(args):
         )
         if not os.path.exists(args.output_dir):
             os.makedirs(args.output_dir)
+
+        # 日志文件名
+        log_file_name = f"{args.data_name}-{args.model}.log"
+        # 将日志在控制台和文件都打印
+        sys.stdout = Logger(osp.join(args.output_dir, log_file_name))
+
+        print(f"[INFO] rank: {RANK}")
         print(f"[INFO] result path: {os.path.abspath(args.output_dir)}\n", flush=True)
 
         # 实例化tensorboard
         tb_writer = SummaryWriter(args.output_dir)
-        print(f'[INFO] Start Tensorboard with "tensorboard --logdir={args.output_dir}", view at http://localhost:6006/')
-
-        # 日志文件名
-        log_file_name = f"{args.data_name}-{args.model}.log"
-        sys.stdout = Logger(osp.join(args.output_dir, log_file_name))
+        print(f'[INFO] Start Tensorboard with "tensorboard --logdir={args.output_dir}", view at http://localhost:6006/\n')
 
     utils.init_distributed_mode(args)  # 初始化分布式环境
     print_args(args)
