@@ -112,7 +112,6 @@ class MetricLogger:
                 [
                     header,
                     "[{0" + space_fmt + "}/{1}]",
-                    "eta: {eta}",
                     "{meters}",
                     "max mem: {memory:.0f}",
                 ]
@@ -122,7 +121,6 @@ class MetricLogger:
                 [
                     header,
                     "[{0" + space_fmt + "}/{1}]",
-                    "eta: {eta}",
                     "{meters}",
                 ]
             )
@@ -132,14 +130,11 @@ class MetricLogger:
             yield obj
             iter_time.update(time.time() - end)
             if i % print_freq == 0:
-                eta_seconds = iter_time.global_avg * (len(iterable) - i)
-                eta_string = str(datetime.timedelta(seconds=int(eta_seconds)))
                 if torch.cuda.is_available():
                     print(
                         log_msg.format(
                             i,
                             len(iterable),
-                            eta=eta_string,
                             meters=str(self),
                             memory=torch.cuda.max_memory_allocated() / MB,
                         ), flush=True
@@ -149,7 +144,6 @@ class MetricLogger:
                         log_msg.format(
                             i,
                             len(iterable),
-                            eta=eta_string,
                             meters=str(self),
                         ), flush=True
                     )
