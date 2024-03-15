@@ -27,8 +27,8 @@ def cal_loss(logits, labels, reduction="mean"):
     calibration_loss = (pt.gather(1, top2_pred_labels.view(-1, 1)) * pred_true.view(-1, 1)
                         + pt.gather(1, top1_pred_labels.view(-1, 1)) * pred_false.view(-1, 1))
     # print(calibration_loss)
-    # calibration_loss = torch.exp(calibration_loss)
-    calibration_loss = torch.log(calibration_loss + 1)
+    calibration_loss = torch.exp(calibration_loss) - 1
+    # calibration_loss = torch.log(calibration_loss + 1)
 
     fl = ce_loss + calibration_loss
 
