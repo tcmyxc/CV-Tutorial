@@ -14,6 +14,7 @@ import torchvision
 from torch import nn
 from torch.utils.data.dataloader import default_collate
 from torch.utils.tensorboard import SummaryWriter
+from mmengine.config import Config
 
 import sys
 from pathlib import Path
@@ -406,6 +407,9 @@ def get_args_parser(add_help=True):
 
     parser = argparse.ArgumentParser(description="PyTorch Classification Training", add_help=add_help)
 
+    # 配置文件路径（配置文件里面的内容优先）
+    parser.add_argument('-c', '--config', type=str, help='Path to the configuration file')
+
     # 数据集路径
     parser.add_argument("--data-path", default="~/datasets/", type=str, help="dataset path")
     parser.add_argument("--data_name", default="cifar10", type=str, help="dataset name")
@@ -483,9 +487,20 @@ def get_args_parser(add_help=True):
     parser.add_argument("--weights", default=None, type=str, help="the weights enum name to load")
     parser.add_argument("--seed", default=0, type=int)
 
-    return parser
+    return parser.parse_args()
 
 
 if __name__ == "__main__":
-    args = get_args_parser().parse_args()
-    main(args)
+    args = get_args_parser()
+    cfg = Config(vars(args))
+
+    # 从配置文件中读取配置
+    if args.config:
+        file_config = Config.fromfile(args.config).to_dict()
+    else:
+        file_config = {}
+
+    # 将命令行参数和配置文件中的配置合并
+    cfg.merge_from_dict(file_config)
+
+    main(cfg)
