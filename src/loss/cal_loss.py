@@ -2,11 +2,10 @@ import torch
 import torch.nn.functional as F
 
 
-def cal_loss(logits, labels, reduction="mean"):
-    log_pt = F.log_softmax(logits, dim=-1)  # 这里相当于 CE loss
+def cal_loss(logits, labels):
+    ce_loss = F.cross_entropy(logits, labels)
+    log_pt = F.log_softmax(logits, dim=-1)
     pt = torch.exp(log_pt)  # 通过 softmax 函数后打的分
-    true_pt = pt.gather(1, labels.view(-1, 1))  # 挑选出真实值对应的 softmax 打分，也可以使用独热编码实现
-    ce_loss = -torch.log(true_pt)
 
     pred_labels = torch.argmax(logits, dim=-1)
 
@@ -30,14 +29,7 @@ def cal_loss(logits, labels, reduction="mean"):
     calibration_loss = torch.exp(calibration_loss) - 1
     # calibration_loss = torch.log(calibration_loss + 1)
 
-    fl = ce_loss + calibration_loss
-
-    if reduction == "sum":
-        fl = fl.sum()
-    elif reduction == "mean":
-        fl = fl.mean()
-    else:
-        raise ValueError(f"reduction '{reduction}' is not valid")
+    fl = ce_loss + calibration_loss.mean()
     return fl
 
 
