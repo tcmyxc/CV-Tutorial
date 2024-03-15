@@ -415,7 +415,7 @@ def get_args_parser(add_help=True):
     parser.add_argument(
         "--model_lib",
         default="torch", type=str,
-        choices=["torch", "timm", "cifar100"],
+        choices=["torch", "timm", "cifar100", "qt"],
         help="model library",
     )
 

@@ -31,6 +31,10 @@ from models.cifar100 import (
 from models import (
     wide_resnet,
 )
+# from qt
+from models import (
+    vision_transformer_timm,
+)
 # act layers
 from layers import get_act_layer
 
@@ -50,6 +54,9 @@ def load_model(args, num_classes=10, **kwargs):
     elif args.model_lib == "cifar100":
         if args.model in list_models():
             model = get_model(args.model, num_classes=num_classes, **kwargs)
+    elif args.model_lib == "qt":
+        if args.model in list_models():
+            model = get_model(args.model, num_classes=num_classes)
     else:
         raise NotImplementedError(args.model)
 
@@ -66,11 +73,11 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     # 模型架构
-    parser.add_argument("--model", default="", type=str, help="model name")
+    parser.add_argument("--model", default="vit_tiny_patch4_32", type=str, help="model name")
     parser.add_argument(
         "--model_lib",
-        default="cifar100", type=str,
-        choices=["torch", "timm", "cifar100"],
+        default="qt", type=str,
+        choices=["torch", "timm", "cifar100", "qt"],
         help="model library",
     )
     parser.add_argument(
@@ -81,8 +88,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    args.model = "resnet50"
-    model = load_model(args, num_classes=1000)
+    model = load_model(args, num_classes=100)
     print(model)
     # summary(model, input_size=(3, 32, 32), batch_size=8, device="cpu")
 
