@@ -23,5 +23,3 @@ class HGELU(nn.Module):
 
     def forward(self, x):
         return hgelu(x)
-
-
