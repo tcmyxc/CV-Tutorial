@@ -1,10 +1,7 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import torch
-import torch.nn as nn
-from functools import partial
-
 import torchvision
 
 FILE = Path(__file__).resolve()
@@ -13,6 +10,7 @@ if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 
 from models._api import get_model, list_models
+# `pytorch-cifar100` models
 from models.cifar100 import (
     vgg,
     resnet,
@@ -29,9 +27,12 @@ from models.cifar100 import (
     inceptionv4,
     xception,
 )
+# code from cutout
 from models import (
     wide_resnet,
 )
+# act layers
+from layers import get_act_layer
 
 
 def load_model(args, num_classes=10, **kwargs):
@@ -58,18 +59,8 @@ def load_model(args, num_classes=10, **kwargs):
         raise NotImplementedError(f"{args.model_lib} library, {args.model} arch not implemented")
 
 
-def get_act_layer(act_layer):
-    if act_layer == "relu":
-        return partial(nn.ReLU, inplace=True)
-    elif act_layer == "gelu":
-        return nn.GELU
-    else:
-        raise NotImplementedError(act_layer)
-
-
 if __name__ == "__main__":
     import argparse
-    from torchsummary import summary
 
     print(list_models())
 
@@ -84,7 +75,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--act_layer",
-        default="gelu", type=str,
+        default="hgelu", type=str,
         help="activation function",
     )
 
