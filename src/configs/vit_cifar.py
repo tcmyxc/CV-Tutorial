@@ -15,5 +15,6 @@ weight_decay = 5e-2
 # lr_scheduler
 lr_warmup_epochs = 20
 lr_min = 5e-6
+lr_warmup_decay = 0.001
 
 act_layer = "gelu"
