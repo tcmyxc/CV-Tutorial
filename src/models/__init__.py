@@ -35,6 +35,10 @@ from models import (
 from models import (
     vision_transformer_timm,
 )
+# custom
+from models import(
+    resnet_center_loss,
+)
 # act layers
 from layers import get_act_layer
 
