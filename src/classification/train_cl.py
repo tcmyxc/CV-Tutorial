@@ -251,7 +251,7 @@ def main(args):
     )
 
     # 优化器
-    criterion_cent = CenterLoss(num_classes=num_classes)
+    criterion_cent = CenterLoss(num_classes=num_classes, feat_dim=32)
     optimizer_centloss = torch.optim.SGD(criterion_cent.parameters(), lr=args.lr_cent)
     opt_name = args.opt.lower()
     if opt_name.startswith("sgd"):
@@ -402,9 +402,9 @@ def main(args):
             # save best checkpoint
             if is_best:
                 print(f"\n[FEAT] best acc: {best_acc1:.2f}\n")
-                utils.save_on_master(checkpoint, osp.join(args.output_dir, "best_model.pth"))
+                # utils.save_on_master(checkpoint, osp.join(args.output_dir, "best_model.pth"))
 
-            utils.save_on_master(checkpoint, osp.join(args.output_dir, "checkpoint.pth"))
+            # utils.save_on_master(checkpoint, osp.join(args.output_dir, "checkpoint.pth"))
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))

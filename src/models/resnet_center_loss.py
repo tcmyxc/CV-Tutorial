@@ -102,9 +102,9 @@ class ResNet(nn.Module):
         self.conv4_x = self._make_layer(block, 256, num_block[2], 2, act_layer)
         self.conv5_x = self._make_layer(block, 512, num_block[3], 2, act_layer)
         self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc1 = nn.Linear(512 * block.expansion, 128)
+        self.fc1 = nn.Linear(512 * block.expansion, 32)
         self.prelu_fc1 = nn.PReLU()
-        self.fc2 = nn.Linear(128, num_classes)
+        self.fc2 = nn.Linear(32, num_classes)
 
     def _make_layer(self, block, out_channels, num_blocks, stride, act_layer):
         """make resnet layers(by layer i didnt mean this 'layer' was the
