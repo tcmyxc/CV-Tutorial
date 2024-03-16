@@ -41,7 +41,6 @@ from layers import get_act_layer
 
 def load_model(args, num_classes=10, **kwargs):
     print(f'\n[INFO] load model: {args.model}, from lib: {args.model_lib}')
-    print('\n[INFO] act_layer:', args.act_layer)
     act_layer = get_act_layer(args.act_layer)
     kwargs["act_layer"] = act_layer
 
@@ -52,6 +51,7 @@ def load_model(args, num_classes=10, **kwargs):
         pass
         # TODO
     elif args.model_lib == "cifar100":
+        print('\n[INFO] act_layer:', args.act_layer)
         if args.model in list_models():
             model = get_model(args.model, num_classes=num_classes, **kwargs)
     elif args.model_lib == "qt":
