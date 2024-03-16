@@ -44,6 +44,7 @@ WORLD_SIZE = int(os.getenv('WORLD_SIZE', 1))
 def train_one_epoch(model, criterion, criterion_cent, optimizer, optimizer_centloss,
                     data_loader, device, epoch, args, model_ema=None, scaler=None):
     model.train()
+    weight_cent = args.weight_cent
     metric_logger = utils.MetricLogger(delimiter="  ")
     metric_logger.add_meter("lr", utils.SmoothedValue(window_size=1, fmt="{value:.6f}"))
 
@@ -52,7 +53,7 @@ def train_one_epoch(model, criterion, criterion_cent, optimizer, optimizer_centl
         image, target = image.to(device), target.to(device)
         with torch.cuda.amp.autocast(enabled=scaler is not None):
             features, output = model(image)
-            loss = criterion(output, target) + criterion_cent(features, target)
+            loss = criterion(output, target) + criterion_cent(features, target) * weight_cent
 
         optimizer.zero_grad()
         optimizer_centloss.zero_grad()
@@ -63,6 +64,9 @@ def train_one_epoch(model, criterion, criterion_cent, optimizer, optimizer_centl
                 scaler.unscale_(optimizer)
                 nn.utils.clip_grad_norm_(model.parameters(), args.clip_grad_norm)
             scaler.step(optimizer)
+            # by doing so, weight_cent would not impact on the learning of centers
+            for param in criterion_cent.parameters():
+                param.grad.data *= (1. / weight_cent)
             scaler.step(optimizer_centloss)
             scaler.update()
         else:
@@ -70,6 +74,9 @@ def train_one_epoch(model, criterion, criterion_cent, optimizer, optimizer_centl
             if args.clip_grad_norm is not None:
                 nn.utils.clip_grad_norm_(model.parameters(), args.clip_grad_norm)
             optimizer.step()
+            # by doing so, weight_cent would not impact on the learning of centers
+            for param in criterion_cent.parameters():
+                param.grad.data *= (1. / weight_cent)
             optimizer_centloss.step()
 
         if model_ema and i % args.model_ema_steps == 0:
@@ -440,6 +447,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--opt", default="sgd", type=str, help="optimizer")
     parser.add_argument("--lr", default=0.01, type=float, help="initial learning rate")
     parser.add_argument("--lr_cent", default=0.5, type=float)
+    parser.add_argument("--weight_cent", default=0.001, type=float)
     parser.add_argument("--momentum", default=0.9, type=float, metavar="M", help="momentum")
     parser.add_argument("--wd", "--weight-decay", default=5e-4, type=float, metavar="W", help="weight decay (default: 5e-4)", dest="weight_decay")
     parser.add_argument("--norm-weight-decay", default=None, type=float, help="weight decay for Normalization layers (default: None, same value as --wd)")
