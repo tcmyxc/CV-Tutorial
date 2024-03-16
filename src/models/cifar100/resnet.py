@@ -9,6 +9,7 @@
 """
 
 import torch.nn as nn
+from functools import partial
 
 from models._api import register_model
 
@@ -27,7 +28,7 @@ class BasicBlock(nn.Module):
     def __init__(self, in_channels, out_channels, stride=1, act_layer=None,):
         super().__init__()
 
-        self.act_layer = act_layer or nn.ReLU(inplace=True)
+        self.act_layer = act_layer or partial(nn.ReLU, inplace=True)
 
         #residual function
         self.residual_function = nn.Sequential(
@@ -60,7 +61,7 @@ class BottleNeck(nn.Module):
     expansion = 4
     def __init__(self, in_channels, out_channels, stride=1, act_layer=None,):
         super().__init__()
-        self.act_layer = act_layer or nn.ReLU(inplace=True)
+        self.act_layer = act_layer or partial(nn.ReLU, inplace=True)
         self.residual_function = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, kernel_size=1, bias=False),
             nn.BatchNorm2d(out_channels),
@@ -88,7 +89,7 @@ class ResNet(nn.Module):
 
     def __init__(self, block, num_block, num_classes=100, act_layer=None, **kwargs):
         super().__init__()
-        act_layer = act_layer or nn.ReLU(inplace=True)
+        act_layer = act_layer or partial(nn.ReLU, inplace=True)
 
         self.in_channels = 64
 
