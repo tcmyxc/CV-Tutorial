@@ -38,6 +38,7 @@ from models import (
 # custom
 from models import(
     resnet_center_loss,
+    resnet_ema_center_loss,
 )
 # act layers
 from layers import get_act_layer
