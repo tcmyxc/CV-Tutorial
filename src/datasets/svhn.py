@@ -26,7 +26,7 @@ train_transform = transforms.Compose([
 test_transform = transforms.Compose([transforms.ToTensor(), normalize])
 
 
-def get_svhn(data_root='data', use_extra=True, **kwargs):
+def get_svhn(data_root='data', use_extra=False, **kwargs):
     num_classes = 10
 
     train_dataset = datasets.SVHN(
