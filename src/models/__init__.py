@@ -57,6 +57,9 @@ def load_model(args, num_classes=10, **kwargs):
     elif args.model_lib == "qt":
         if args.model in list_models():
             model = get_model(args.model, num_classes=num_classes)
+    elif args.model_lib == "custom":
+        if args.model in list_models():
+            model = get_model(args.model, num_classes=num_classes)
     else:
         raise NotImplementedError(args.model)
 
