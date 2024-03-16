@@ -26,7 +26,7 @@ train_transform = transforms.Compose([
 test_transform = transforms.Compose([transforms.ToTensor(), normalize])
 
 
-def get_svhn(data_root='data', **kwargs):
+def get_svhn(data_root='data', use_extra=False, **kwargs):
     num_classes = 10
 
     train_dataset = datasets.SVHN(
@@ -36,18 +36,19 @@ def get_svhn(data_root='data', **kwargs):
         download=True
     )
 
-    extra_dataset = datasets.SVHN(
-        root=data_root,
-        split='extra',
-        transform=train_transform,
-        download=True
-    )
+    if use_extra:
+        extra_dataset = datasets.SVHN(
+            root=data_root,
+            split='extra',
+            transform=train_transform,
+            download=True
+        )
 
-    # Combine both training splits (https://arxiv.org/pdf/1605.07146.pdf)
-    data = np.concatenate([train_dataset.data, extra_dataset.data], axis=0)
-    labels = np.concatenate([train_dataset.labels, extra_dataset.labels], axis=0)
-    train_dataset.data = data
-    train_dataset.labels = labels
+        # Combine both training splits (https://arxiv.org/pdf/1605.07146.pdf)
+        data = np.concatenate([train_dataset.data, extra_dataset.data], axis=0)
+        labels = np.concatenate([train_dataset.labels, extra_dataset.labels], axis=0)
+        train_dataset.data = data
+        train_dataset.labels = labels
 
     test_dataset = datasets.SVHN(
         root=data_root,

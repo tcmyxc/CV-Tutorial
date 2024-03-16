@@ -105,7 +105,7 @@ ResNet50 + CIFAR-10 实验结果 (CIFAR100仓库实现)
 	- +预热5轮: 95.08
 		- 使用amp: 95.07
 		- +AA&Cutout: 96.89 (+1.85)
-			- cal_loss(exp): 
+			- cal_loss(exp): 96.70
 		- cal_loss: 95.23
 
 	
@@ -119,8 +119,9 @@ ResNet50 + STL-10 实验结果 (CIFAR100仓库实现)
 - 基础配置&预热5轮: 83.44
 	- cal_loss(exp): 84.33 (+0.89), 自行实现的ce_loss测试阶段loss会inf
 		- ce_loss部分使用库函数: 84.19
+	- cal_loss(log): 
 
 
 ViT + cifar-10
-- 基础配置: 90.49
-	- cal_loss(exp): 90.51
+- 基础配置: 90.49, 90.67
+	- cal_loss(exp): 90.51, 
