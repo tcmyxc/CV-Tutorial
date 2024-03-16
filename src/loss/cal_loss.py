@@ -2,6 +2,11 @@ import torch
 import torch.nn.functional as F
 
 
+def erf_loss(x):
+    y = 0.5 * (3 - torch.erf(x)) * x
+    return y
+
+
 def cal_loss(logits, labels):
     ce_loss = F.cross_entropy(logits, labels)
     log_pt = F.log_softmax(logits, dim=-1)
@@ -23,10 +28,10 @@ def cal_loss(logits, labels):
     top1_pred_labels = top1_pred_labels.type_as(labels)
     top2_pred_labels = top2_pred_labels.type_as(labels)
     # print("top2_pred_labels:", top2_pred_labels)
-    calibration_loss = (pt.gather(1, top2_pred_labels.view(-1, 1)) * pred_true.view(-1, 1)
-                        + pt.gather(1, top1_pred_labels.view(-1, 1)) * pred_false.view(-1, 1))
+    calibration_loss = ((pt.gather(1, top2_pred_labels.view(-1, 1)) * pred_true.view(-1, 1)) ** 2
+                        + (pt.gather(1, top1_pred_labels.view(-1, 1)) * pred_false.view(-1, 1)) ** 2)
     # print(calibration_loss)
-    calibration_loss = torch.exp(calibration_loss) - 1
+    # calibration_loss = torch.exp(calibration_loss) - 1
     # calibration_loss = torch.log(calibration_loss + 1)
 
     fl = ce_loss + calibration_loss.mean()
