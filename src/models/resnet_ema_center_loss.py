@@ -108,7 +108,7 @@ class ResNet(nn.Module):
         self.fc1 = nn.Linear(512 * block.expansion, num_classes)
         self.fc2 = nn.Linear(512 * block.expansion, feat_dim)
 
-        self.cls_cent = nn.Parameter(torch.randn(num_classes, feat_dim))
+        self.cls_cent = nn.Parameter(torch.empty(num_classes, feat_dim).normal_(std=0.02))
         self.features = None
 
     def _make_layer(self, block, out_channels, num_blocks, stride, act_layer):
