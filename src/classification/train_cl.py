@@ -258,7 +258,7 @@ def main(args):
     )
 
     # 优化器
-    criterion_cent = CenterLoss(num_classes=num_classes, feat_dim=args.feat_dim)
+    criterion_cent = CenterLoss(num_classes=num_classes, feat_dim=model.fc.in_features)
     optimizer_centloss = torch.optim.SGD(criterion_cent.parameters(), lr=args.lr_cent)
     opt_name = args.opt.lower()
     if opt_name.startswith("sgd"):
@@ -446,8 +446,6 @@ def get_args_parser(add_help=True):
     parser.add_argument("-j", "--workers", default=4, type=int, metavar="N", help="number of data loading workers (default: 4)")
     parser.add_argument("--opt", default="sgd", type=str, help="optimizer")
     parser.add_argument("--lr", default=0.01, type=float, help="initial learning rate")
-    parser.add_argument("--lr_cent", default=0.5, type=float)
-    parser.add_argument("--weight_cent", default=0.001, type=float)
     parser.add_argument("--momentum", default=0.9, type=float, metavar="M", help="momentum")
     parser.add_argument("--wd", "--weight-decay", default=5e-4, type=float, metavar="W", help="weight decay (default: 5e-4)", dest="weight_decay")
     parser.add_argument("--norm-weight-decay", default=None, type=float, help="weight decay for Normalization layers (default: None, same value as --wd)")
@@ -506,8 +504,11 @@ def get_args_parser(add_help=True):
 
     parser.add_argument("--weights", default=None, type=str, help="the weights enum name to load")
     parser.add_argument("--seed", default=0, type=int)
-    parser.add_argument("--feat_dim", default=32, type=int)
-    
+
+    # center loss param
+    parser.add_argument("--lr_cent", default=0.5, type=float)
+    parser.add_argument("--weight_cent", default=0.0005, type=float)
+
     return parser.parse_args()
 
 
