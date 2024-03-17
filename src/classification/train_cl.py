@@ -258,7 +258,7 @@ def main(args):
     )
 
     # 优化器
-    criterion_cent = CenterLoss(num_classes=num_classes, feat_dim=32)
+    criterion_cent = CenterLoss(num_classes=num_classes, feat_dim=args.feat_dim)
     optimizer_centloss = torch.optim.SGD(criterion_cent.parameters(), lr=args.lr_cent)
     opt_name = args.opt.lower()
     if opt_name.startswith("sgd"):
@@ -506,7 +506,8 @@ def get_args_parser(add_help=True):
 
     parser.add_argument("--weights", default=None, type=str, help="the weights enum name to load")
     parser.add_argument("--seed", default=0, type=int)
-
+    parser.add_argument("--feat_dim", default=32, type=int)
+    
     return parser.parse_args()
 
 
