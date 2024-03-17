@@ -34,6 +34,7 @@ from models import (
 # from qt
 from models import (
     vision_transformer_timm,
+    swin_transformer,
 )
 # custom
 from models import(
@@ -76,11 +77,11 @@ def load_model(args, num_classes=10, **kwargs):
 if __name__ == "__main__":
     import argparse
 
-    print(list_models())
+    # print(list_models())
 
     parser = argparse.ArgumentParser()
     # 模型架构
-    parser.add_argument("--model", default="vit_tiny_patch4_32", type=str, help="model name")
+    parser.add_argument("--model", default="swin_tiny_patch4_window4_32", type=str, help="model name")
     parser.add_argument(
         "--model_lib",
         default="qt", type=str,
