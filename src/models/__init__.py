@@ -39,6 +39,7 @@ from models import (
 # custom
 from models import(
     resnet_center_loss,
+    resnet_bneck,
 )
 # act layers
 from layers import get_act_layer
@@ -72,33 +73,3 @@ def load_model(args, num_classes=10, **kwargs):
         return model
     else:
         raise NotImplementedError(f"{args.model_lib} library, {args.model} arch not implemented")
-
-
-if __name__ == "__main__":
-    import argparse
-
-    # print(list_models())
-
-    parser = argparse.ArgumentParser()
-    # 模型架构
-    parser.add_argument("--model", default="swin_tiny_patch4_window4_32", type=str, help="model name")
-    parser.add_argument(
-        "--model_lib",
-        default="qt", type=str,
-        choices=["torch", "timm", "cifar100", "qt"],
-        help="model library",
-    )
-    parser.add_argument(
-        "--act_layer",
-        default="hgelu", type=str,
-        help="activation function",
-    )
-
-    args = parser.parse_args()
-
-    model = load_model(args, num_classes=100)
-    print(model)
-    # summary(model, input_size=(3, 32, 32), batch_size=8, device="cpu")
-
-    print(model(torch.rand(8, 3, 32, 32)).shape)
-
