@@ -128,7 +128,6 @@ class ResNet(nn.Module):
         self.conv4_x = self._make_layer(block, 256, num_block[2], 2, act_layer)
         self.conv5_x = self._make_layer(block, 512, num_block[3], 1, act_layer)
         self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
-        self.bottleneck = nn.BatchNorm1d(512 * block.expansion)
         self.fc = nn.Linear(512 * block.expansion, num_classes, bias=False)
 
         # torchvsion init
@@ -141,8 +140,6 @@ class ResNet(nn.Module):
 
         # reid init
         self.fc.apply(weights_init_classifier)
-        self.bottleneck.bias.requires_grad_(False)
-        self.bottleneck.apply(weights_init_kaiming)
 
     def _make_layer(self, block, out_channels, num_blocks, stride, act_layer):
         """make resnet layers(by layer i didnt mean this 'layer' was the
@@ -177,7 +174,6 @@ class ResNet(nn.Module):
         output = self.conv5_x(output)
         output = self.avg_pool(output)
         output = output.view(output.size(0), -1)
-        output = self.bottleneck(output)
         output = self.fc(output)
 
         return output
