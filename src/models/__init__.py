@@ -43,6 +43,7 @@ from models import (
 from models import(
     resnet_center_loss,
     resnet_bneck,
+    resnet_cifar,
 )
 # act layers
 from layers import get_act_layer
