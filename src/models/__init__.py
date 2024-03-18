@@ -35,6 +35,7 @@ from models import (
 from models import (
     vision_transformer_timm,
     swin_transformer,
+    cait,
 )
 # custom
 from models import(
