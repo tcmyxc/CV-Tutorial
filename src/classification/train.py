@@ -277,11 +277,15 @@ def main(args):
         )
     elif args.lr_scheduler == "exponentiallr":
         main_lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=args.lr_gamma)
+    elif args.lr_scheduler == "multisteplr":
+        if "cifar" in args.data_name:
+            main_lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[60, 120, 160], gamma=0.2)
+        elif args.data_name == "svhn":
+            main_lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[80, 120], gamma=0.1)
+        else:
+            raise RuntimeError(f"Invalid lr scheduler '{args.lr_scheduler}'")
     else:
-        raise RuntimeError(
-            f"Invalid lr scheduler '{args.lr_scheduler}'. Only StepLR, CosineAnnealingLR and ExponentialLR "
-            "are supported."
-        )
+        raise RuntimeError(f"Invalid lr scheduler '{args.lr_scheduler}'")
 
     # 学习率预热
     if args.lr_warmup_epochs > 0:
