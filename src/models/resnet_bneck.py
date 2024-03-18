@@ -14,6 +14,30 @@ from functools import partial
 from models._api import register_model
 
 
+def weights_init_kaiming(m):
+    classname = m.__class__.__name__
+    if classname.find('Linear') != -1:
+        nn.init.kaiming_normal_(m.weight, a=0, mode='fan_out')
+        nn.init.constant_(m.bias, 0.0)
+
+    elif classname.find('Conv') != -1:
+        nn.init.kaiming_normal_(m.weight, a=0, mode='fan_in')
+        if m.bias is not None:
+            nn.init.constant_(m.bias, 0.0)
+    elif classname.find('BatchNorm') != -1:
+        if m.affine:
+            nn.init.constant_(m.weight, 1.0)
+            nn.init.constant_(m.bias, 0.0)
+
+
+def weights_init_classifier(m):
+    classname = m.__class__.__name__
+    if classname.find('Linear') != -1:
+        nn.init.normal_(m.weight, std=0.001)
+        if m.bias:
+            nn.init.constant_(m.bias, 0.0)
+
+
 class BasicBlock(nn.Module):
     """Basic Block for resnet 18 and resnet 34
 
@@ -107,7 +131,9 @@ class ResNet(nn.Module):
         self.bottleneck = nn.BatchNorm1d(512 * block.expansion)
         self.fc = nn.Linear(512 * block.expansion, num_classes, bias=False)
 
+        self.fc.apply(weights_init_classifier)
         self.bottleneck.bias.requires_grad_(False)
+        self.bottleneck.apply(weights_init_kaiming)
 
     def _make_layer(self, block, out_channels, num_blocks, stride, act_layer):
         """make resnet layers(by layer i didnt mean this 'layer' was the
