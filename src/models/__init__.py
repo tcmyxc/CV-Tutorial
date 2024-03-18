@@ -37,6 +37,7 @@ from models import (
     swin_transformer,
     cait,
     deit,
+    tnt,
 )
 # custom
 from models import(
