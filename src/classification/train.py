@@ -179,6 +179,9 @@ def main(args):
     train_dataset, test_dataset, num_classes = get_dataset(
         data_name=args.data_name,
         data_root=args.data_path,
+        random_erase_prob=args.random_erase,
+        auto_augment=args.auto_augment,
+        cutout=args.cutout,
     )
 
     # 采样器
@@ -450,9 +453,16 @@ def get_args_parser(add_help=True):
     # 激活函数
     parser.add_argument("--act_layer", default="relu", type=str, help="activation function")
     
-    # 下面两行是数据增强
+    # 下面是数据增强
     parser.add_argument("--mixup-alpha", default=0.0, type=float, help="mixup alpha (default: 0.0)")
     parser.add_argument("--cutmix-alpha", default=0.0, type=float, help="cutmix alpha (default: 0.0)")
+
+    # auto augment
+    parser.add_argument("--auto_augment", action="store_true", help="auto augment")
+    # cutout
+    parser.add_argument("--cutout", action="store_true", help="auto augment")
+    # 随机擦除
+    parser.add_argument("--random_erase", default=0.0, type=float, help="random erasing probability (default: 0.0)")
 
     parser.add_argument("--lr-scheduler", default="cosineannealinglr", type=str, help="the lr scheduler (default: cosineannealinglr)")
     parser.add_argument("--lr-warmup-epochs", default=0, type=int, help="the number of epochs to warmup (default: 0)")
