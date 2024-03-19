@@ -41,6 +41,7 @@ def get_cifar10(data_root="~/datasets", random_erase_prob=0.0, auto_augment=Fals
                                                                    scale=(0.125, 0.2),
                                                                    ratio=(0.99, 1.0)))
 
+    print(f"[INFO] train transform: {train_transform}")
     train_dataset = datasets.CIFAR10(
         root=data_root,
         train=True,
