@@ -44,7 +44,10 @@ from models import(
     resnet_center_loss,
     resnet_bneck,
     resnet_cifar,
-    resnet_extra,
+    resnet_e1,
+    resnet_e2,
+    resnet_e3,
+    resnet_e4,
     resnet_torch,
     pyramidnet,
 )
