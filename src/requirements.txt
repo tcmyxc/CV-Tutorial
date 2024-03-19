@@ -6,4 +6,3 @@ torchsummary==1.5.1
 torchvision==0.14.1
 ptflops==0.7.2.2
 timm==0.9.16
-thop
