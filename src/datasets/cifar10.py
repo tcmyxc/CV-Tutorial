@@ -27,7 +27,7 @@ def get_cifar10(data_root="~/datasets", random_erase_prob=0.0, auto_augment=Fals
         transforms.RandomHorizontalFlip(),
     ])
     if auto_augment:
-        train_transform.transforms.append(CIFAR10Policy)
+        train_transform.transforms.append(CIFAR10Policy())
 
     train_transform.transforms.append(transforms.ToTensor())
 
