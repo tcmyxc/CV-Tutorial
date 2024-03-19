@@ -287,9 +287,13 @@ def main(args):
                 cifar_milestones = [(i - args.lr_warmup_epochs) for i in cifar_milestones]
                 main_lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=cifar_milestones, gamma=0.2)
             elif args.epochs == 300:
-                main_lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[150, 225], gamma=0.1)
+                cifar_milestones = [150, 225]
+                cifar_milestones = [(i - args.lr_warmup_epochs) for i in cifar_milestones]
+                main_lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=cifar_milestones, gamma=0.1)
         elif args.data_name == "svhn":
-            main_lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[80, 120], gamma=0.1)
+            svhn_milestones = [80, 120]
+            svhn_milestones = [(i - args.lr_warmup_epochs) for i in svhn_milestones]
+            main_lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=svhn_milestones, gamma=0.1)
         else:
             raise RuntimeError(f"Invalid lr scheduler '{args.lr_scheduler}'")
     else:
