@@ -45,6 +45,7 @@ from models import(
     resnet_bneck,
     resnet_cifar,
     resnet_extra,
+    resnet_torch,
     pyramidnet,
 )
 # act layers
