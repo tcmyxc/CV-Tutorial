@@ -41,3 +41,6 @@ class Cutout(object):
         img = img * mask
 
         return img
+
+    def __repr__(self):
+        return f"Cutout(n_holes={self.n_holes}, length={self.length})"
