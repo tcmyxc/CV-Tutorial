@@ -109,13 +109,31 @@ ResNet50 + CIFAR-10 实验结果 (CIFAR100仓库实现)
 			- center_loss: 96.72
 			- 双分支center loss: 96.77
 		- cal_loss: 95.23
-		- 双分支center_loss: 95.07, 
+		- 双分支center_loss: 95.07
+		- center loss(参考reid, weight_cent超参搜索): 
+			- 0.001: 95.01
+			- 0.0005: **95.12**
+			- 0.01: 94.89
+			- 0.005: 94.81
+			- 0.1: 94.50
+			- 0.05: 94.87
+			- 1: 94.32
+			- 0.5: 94.41
+		- last_stride=1: 95.18
+			- bnneck: 
 
 	
 ResNet50 + CIFAR-100 实验结果 (CIFAR100仓库实现)
 - 基础配置&预热5轮: 77.36
 	- cal_loss(log): 78.04 (+0.68)
 	- cal_loss(exp): 78.40 (+1.04)
+	- last_stride=1: 78.88 (后面100轮性能基本无提升，感觉可以使用更大的学习率0.1)
+		- lr0.1, multsteplr: 80.18
+			- cal loss: 80.42
+				- kaiming normal: 80.70
+					- FC层使用reid的初始化: 80.41
+		- bnneck: 78.40
+			- lr0.1, multsteplr: 76.67
 
 
 ResNet50 + STL-10 实验结果 (CIFAR100仓库实现)
