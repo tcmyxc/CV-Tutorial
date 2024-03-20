@@ -138,9 +138,6 @@ class ResNet(nn.Module):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
 
-        # reid init
-        self.fc.apply(weights_init_classifier)
-
     def _make_layer(self, block, out_channels, num_blocks, stride, act_layer):
         """make resnet layers(by layer i didnt mean this 'layer' was the
         same as a neuron netowork layer, ex. conv layer), one layer may
