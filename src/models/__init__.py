@@ -48,6 +48,7 @@ from models import(
     resnet_e2,
     resnet_e3,
     resnet_e4,
+    resnet_e5,
     resnet_torch,
     pyramidnet,
 )
