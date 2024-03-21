@@ -99,13 +99,31 @@ class WideResNet(nn.Module):
         return out
 
 
-@register_model('WRN16_8')
+@register_model('WRN-16-8')
 def WRN16_8(**kwargs):
     "for svhn"
     return WideResNet(depth=16, widen_factor=8, dropRate=0.4, **kwargs)
 
 
-@register_model('WRN28_10')
+@register_model('WRN-28-10')
 def WRN28_10(**kwargs):
     "for cifar10/cifar100"
     return WideResNet(depth=28, widen_factor=10, dropRate=0.3, **kwargs)
+
+@register_model("WRN-50-2")
+def WRN50_2(**kwargs):
+    """
+    for imagenet
+    """
+    net = WideResNet(depth=50, widen_factor=2, **kwargs)
+    return net
+
+
+@register_model("WRN-40-10")
+def WRN40_10(**kwargs):
+    """
+    for cifar10/cifar100
+    """
+    net = WideResNet(depth=40, widen_factor=10, dropRate=0.3, **kwargs)
+    return net
+
