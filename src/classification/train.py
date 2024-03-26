@@ -282,6 +282,8 @@ def main(args):
     if args.resume:
         checkpoint = torch.load(args.resume, map_location="cpu")
         model_without_ddp.load_state_dict(checkpoint["model"])
+        best_acc1 = checkpoint["best_acc1"]
+        print(f"[INFO] previous checkpoint best acc: {best_acc1}")
         if not args.test_only:
             optimizer.load_state_dict(checkpoint["optimizer"])
             lr_scheduler.load_state_dict(checkpoint["lr_scheduler"])
@@ -337,6 +339,7 @@ def main(args):
                 "lr_scheduler": lr_scheduler.state_dict(),
                 "epoch": epoch,
                 "args": args,
+                "best_acc1": best_acc1,
             }
             if model_ema:
                 checkpoint["model_ema"] = model_ema.state_dict()
