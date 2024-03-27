@@ -70,13 +70,17 @@ def load_model(args, num_classes=10, **kwargs):
         # TODO
     elif args.model_lib == "cifar100":
         print('\n[INFO] act_layer:', args.act_layer)
+        # TODO: `act_layer` param current only for resnet
         if args.model in list_models():
             model = get_model(args.model, num_classes=num_classes, **kwargs)
     elif args.model_lib == "qt":
         if args.model in list_models():
             model = get_model(args.model, num_classes=num_classes)
     elif args.model_lib == "custom":
-        if args.model in list_models():
+        if "E5" in args.model:
+            print("[INFO] act_layer:", args.act_layer)
+            model = get_model(args.model, num_classes=num_classes, act_layer=act_layer)
+        elif args.model in list_models():
             model = get_model(args.model, num_classes=num_classes)
     else:
         raise NotImplementedError(args.model)

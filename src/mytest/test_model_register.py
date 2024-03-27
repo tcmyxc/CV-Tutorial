@@ -8,7 +8,7 @@ print(list_models())
 
 parser = argparse.ArgumentParser()
 # 模型架构
-parser.add_argument("--model", default="resnet50_E", type=str, help="model name")
+parser.add_argument("--model", default="resnet50_E5", type=str, help="model name")
 parser.add_argument(
     "--model_lib",
     default="custom", type=str,
@@ -17,7 +17,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--act_layer",
-    default="hgelu", type=str,
+    default="gelu", type=str,
     help="activation function",
 )
 
