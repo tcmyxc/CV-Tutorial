@@ -319,6 +319,7 @@ def resnext101_32x8d(pretrained: bool = False, progress: bool = True, **kwargs: 
     return _resnet("resnext101_32x8d", Bottleneck, [3, 4, 23, 3], **kwargs)
 
 
+@register_model("wide_resnet50_2_E5")
 def wide_resnet50_2(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> ResNet:
     r"""Wide ResNet-50-2 model from
     `"Wide Residual Networks" <https://arxiv.org/pdf/1605.07146.pdf>`_.
