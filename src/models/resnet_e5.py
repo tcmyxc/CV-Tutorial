@@ -301,6 +301,7 @@ def resnet50(**kwargs: Any) -> ResNet:
     return _resnet("resnet50", Bottleneck, [3, 4, 6, 3], **kwargs)
 
 
+@register_model("resnet101_E5")
 def resnet101(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> ResNet:
     r"""ResNet-101 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_.
@@ -308,6 +309,7 @@ def resnet101(pretrained: bool = False, progress: bool = True, **kwargs: Any) ->
     return _resnet("resnet101", Bottleneck, [3, 4, 23, 3], **kwargs)
 
 
+@register_model("resnet152_E5")
 def resnet152(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> ResNet:
     r"""ResNet-152 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_.
@@ -347,6 +349,7 @@ def wide_resnet50_2(pretrained: bool = False, progress: bool = True, **kwargs: A
     return _resnet("wide_resnet50_2", Bottleneck, [3, 4, 6, 3], **kwargs)
 
 
+@register_model("wide_resnet101_2_E5")
 def wide_resnet101_2(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> ResNet:
     r"""Wide ResNet-101-2 model from
     `"Wide Residual Networks" <https://arxiv.org/pdf/1605.07146.pdf>`_.
