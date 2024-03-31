@@ -84,7 +84,7 @@ class ConvNeXt(nn.Module):
             last_stride = 1 if i == 2 else 2
             downsample_layer = nn.Sequential(
                     LayerNorm(dims[i], eps=1e-6, data_format="channels_first"),
-                    nn.Conv2d(dims[i], dims[i+1], kernel_size=2, stride=last_stride),
+                    nn.Conv2d(dims[i], dims[i+1], kernel_size=last_stride, stride=last_stride),
             )
             self.downsample_layers.append(downsample_layer)
 
