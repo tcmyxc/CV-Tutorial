@@ -229,6 +229,7 @@ def main(args):
     print("[INFO] Creating model")
     # TODO: 模型架构
     model = load_model(args, num_classes)
+    print(f"[INFO] model architecture:\n{model}")
     model.to(device)
 
     if args.distributed and args.sync_bn:
