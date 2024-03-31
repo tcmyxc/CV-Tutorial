@@ -78,7 +78,7 @@ class BasicBlock(nn.Module):
         if norm_layer is None:
             norm_layer = LayerNorm
         if act_layer is None:
-            act_layer = partial(nn.ReLU, inplace=True)
+            act_layer = nn.GELU
         if groups != 1 or base_width != 64:
             raise ValueError("BasicBlock only supports groups=1 and base_width=64")
         if dilation > 1:
@@ -136,7 +136,7 @@ class Bottleneck(nn.Module):
         if norm_layer is None:
             norm_layer = LayerNorm
         if act_layer is None:
-            act_layer = partial(nn.ReLU, inplace=True)
+            act_layer = nn.GELU
         width = int(planes * (base_width / 64.0)) * groups
         # Both self.conv2 and self.downsample layers downsample the input when stride != 1
         self.conv1 = conv1x1(inplanes, width)
@@ -191,7 +191,7 @@ class ResNet(nn.Module):
         self._norm_layer = norm_layer
         
         if act_layer is None:
-            act_layer = partial(nn.ReLU, inplace=True)
+            act_layer = nn.GELU
         self._act_layer = act_layer
 
         self.inplanes = 64
