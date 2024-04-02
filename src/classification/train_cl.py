@@ -417,7 +417,6 @@ def main(args):
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     print(f"\n[INFO] best acc: {best_acc1:.2f}, err rate: {(100.0 - best_acc1):.2f}")
     print(f"Training time {total_time_str}")
-    tb_writer.close()
 
 
 def get_args_parser(add_help=True):
