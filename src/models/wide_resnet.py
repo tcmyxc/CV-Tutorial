@@ -110,14 +110,6 @@ def WRN28_10(**kwargs):
     "for cifar10/cifar100"
     return WideResNet(depth=28, widen_factor=10, dropRate=0.3, **kwargs)
 
-@register_model("WRN-50-2")
-def WRN50_2(**kwargs):
-    """
-    for imagenet
-    """
-    net = WideResNet(depth=50, widen_factor=2, **kwargs)
-    return net
-
 
 @register_model("WRN-40-10")
 def WRN40_10(**kwargs):
@@ -126,4 +118,3 @@ def WRN40_10(**kwargs):
     """
     net = WideResNet(depth=40, widen_factor=10, dropRate=0.3, **kwargs)
     return net
-
