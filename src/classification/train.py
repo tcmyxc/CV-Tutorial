@@ -34,6 +34,7 @@ from utils.yolo_utils import init_seeds
 from utils.scheduler_util import get_lr_scheduler
 from utils.opt_util import get_optimizer
 from loss import get_loss_fn
+from utils import single_gpu_rasampler
 
 best_acc1 = 0
 
@@ -194,7 +195,13 @@ def main(args):
             train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
         test_sampler = torch.utils.data.distributed.DistributedSampler(test_dataset, shuffle=False)
     else:
-        train_sampler = torch.utils.data.RandomSampler(train_dataset)
+        if hasattr(args, "ra_sampler") and args.ra_sampler:
+            train_sampler = single_gpu_rasampler.RASampler(
+                len(train_dataset), args.batch_size, args.ra_reps,
+                2, shuffle=True, drop_last=False
+            )
+        else:
+            train_sampler = torch.utils.data.RandomSampler(train_dataset)
         test_sampler = torch.utils.data.SequentialSampler(test_dataset)
 
     collate_fn = None
