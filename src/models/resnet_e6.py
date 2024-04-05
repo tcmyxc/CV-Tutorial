@@ -266,6 +266,16 @@ def _resnet(
     return model
 
 
+@register_model("resnet18_10_E6")
+def resnet18(widen_factor=10, **kwargs: Any) -> ResNet:
+    return _resnet(BasicBlock, [2, 2, 2, 2], [widen_factor * i for i in [16, 32, 64, 128]], **kwargs)
+
+
+@register_model("resnet34_10_E6")
+def resnet34(widen_factor=10, **kwargs: Any) -> ResNet:
+    return _resnet(BasicBlock, [3, 4, 6, 3], [widen_factor * i for i in [16, 32, 64, 128]], **kwargs)
+
+
 @register_model("resnet50_E6_tiny")
 def resnet50_tiny(**kwargs: Any) -> ResNet:
     return _resnet(Bottleneck, [3, 3, 9, 3], [96, 192, 384, 768], **kwargs)
