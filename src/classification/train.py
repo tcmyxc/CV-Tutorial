@@ -196,10 +196,7 @@ def main(args):
         test_sampler = torch.utils.data.distributed.DistributedSampler(test_dataset, shuffle=False)
     else:
         if hasattr(args, "ra_sampler") and args.ra_sampler:
-            train_sampler = single_gpu_rasampler.RASampler(
-                len(train_dataset), args.batch_size, args.ra_reps,
-                2, shuffle=True, drop_last=False
-            )
+            train_sampler = single_gpu_rasampler.RASampler(len(train_dataset), args.batch_size, args.ra_reps)
         else:
             train_sampler = torch.utils.data.RandomSampler(train_dataset)
         test_sampler = torch.utils.data.SequentialSampler(test_dataset)
@@ -219,13 +216,30 @@ def main(args):
             return mixupcutmix(*default_collate(batch))
 
     print("[INFO] Creating data loaders")
-    data_loader = torch.utils.data.DataLoader(
-        train_dataset,
-        batch_size=args.batch_size,
-        sampler=train_sampler,
-        num_workers=args.workers,
-        collate_fn=collate_fn,
-    )
+    if args.distributed:
+        data_loader = torch.utils.data.DataLoader(
+            train_dataset,
+            batch_size=args.batch_size,
+            sampler=train_sampler,
+            num_workers=args.workers,
+            collate_fn=collate_fn,
+        )
+    else:
+        if hasattr(args, "ra_sampler") and args.ra_sampler:
+            data_loader = torch.utils.data.DataLoader(
+                train_dataset,
+                batch_sampler=train_sampler,
+                num_workers=args.workers,
+                collate_fn=collate_fn,
+            )
+        else:
+            data_loader = torch.utils.data.DataLoader(
+                train_dataset,
+                batch_size=args.batch_size,
+                sampler=train_sampler,
+                num_workers=args.workers,
+                collate_fn=collate_fn,
+            )
     data_loader_test = torch.utils.data.DataLoader(
         test_dataset,
         batch_size=args.batch_size//2,
