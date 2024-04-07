@@ -290,6 +290,16 @@ def resnet200(**kwargs: Any) -> ResNet:
     return _resnet(Bottleneck, [3, 24, 36, 3], [16, 32, 64, 128], **kwargs)
 
 
+@register_model("resnet200_2_E6_v2")
+def resnet200_2(**kwargs: Any) -> ResNet:
+    return _resnet(Bottleneck, [3, 24, 36, 3], [32, 64, 128, 256], **kwargs)
+
+
+@register_model("resnet200_4_E6_v2")
+def resnet200_4(**kwargs: Any) -> ResNet:
+    return _resnet(Bottleneck, [3, 24, 36, 3], [64, 128, 256, 512], **kwargs)
+
+
 @register_model("resnet272_E6_v2")
 def resnet272(**kwargs: Any) -> ResNet:
     return _resnet(Bottleneck, [4, 29, 53, 4], [64, 128, 256, 512], **kwargs)
