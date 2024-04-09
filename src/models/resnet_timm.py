@@ -311,7 +311,7 @@ def make_blocks(
     dilation = prev_dilation = 1
     for stage_idx, (planes, num_blocks, db) in enumerate(zip(channels, block_repeats, drop_blocks(drop_block_rate))):
         stage_name = f'layer{stage_idx + 1}'  # never liked this name, but weight compat requires it
-        stride = 1 if stage_idx == 0 else 2
+        stride = 1 if (stage_idx == 0 or stage_idx == 3) else 2
         if net_stride >= output_stride:
             dilation *= stride
             stride = 1
@@ -412,6 +412,7 @@ class ResNet(nn.Module):
             drop_block_rate: float = 0.,
             zero_init_last: bool = True,
             block_args: Optional[Dict[str, Any]] = None,
+            last_stride: int = 1,
     ):
         """
         Args:
@@ -461,7 +462,7 @@ class ResNet(nn.Module):
             if 'tiered' in stem_type:
                 stem_chs = (3 * (stem_width // 4), stem_width)
             self.conv1 = nn.Sequential(*[
-                nn.Conv2d(in_chans, stem_chs[0], 3, stride=2, padding=1, bias=False),
+                nn.Conv2d(in_chans, stem_chs[0], 3, stride=1, padding=1, bias=False),
                 norm_layer(stem_chs[0]),
                 act_layer(inplace=True),
                 nn.Conv2d(stem_chs[0], stem_chs[1], 3, stride=1, padding=1, bias=False),
@@ -469,29 +470,10 @@ class ResNet(nn.Module):
                 act_layer(inplace=True),
                 nn.Conv2d(stem_chs[1], inplanes, 3, stride=1, padding=1, bias=False)])
         else:
-            self.conv1 = nn.Conv2d(in_chans, inplanes, kernel_size=7, stride=2, padding=3, bias=False)
+            self.conv1 = nn.Conv2d(in_chans, inplanes, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = norm_layer(inplanes)
         self.act1 = act_layer(inplace=True)
-        self.feature_info = [dict(num_chs=inplanes, reduction=2, module='act1')]
-
-        # Stem pooling. The name 'maxpool' remains for weight compatibility.
-        if replace_stem_pool:
-            self.maxpool = nn.Sequential(*filter(None, [
-                nn.Conv2d(inplanes, inplanes, 3, stride=1 if aa_layer else 2, padding=1, bias=False),
-                create_aa(aa_layer, channels=inplanes, stride=2) if aa_layer is not None else None,
-                norm_layer(inplanes),
-                act_layer(inplace=True),
-            ]))
-        else:
-            if aa_layer is not None:
-                if issubclass(aa_layer, nn.AvgPool2d):
-                    self.maxpool = aa_layer(2)
-                else:
-                    self.maxpool = nn.Sequential(*[
-                        nn.MaxPool2d(kernel_size=3, stride=1, padding=1),
-                        aa_layer(channels=inplanes, stride=2)])
-            else:
-                self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        self.feature_info = [dict(num_chs=inplanes, reduction=1, module='act1')]
 
         # Feature Blocks
         channels = [64, 128, 256, 512]
@@ -528,6 +510,9 @@ class ResNet(nn.Module):
         for n, m in self.named_modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+            elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
         if zero_init_last:
             for m in self.modules():
                 if hasattr(m, 'zero_init_last'):
@@ -554,7 +539,6 @@ class ResNet(nn.Module):
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.act1(x)
-        x = self.maxpool(x)
 
         if self.grad_checkpointing and not torch.jit.is_scripting():
             x = checkpoint_seq([self.layer1, self.layer2, self.layer3, self.layer4], x, flatten=True)
@@ -581,7 +565,7 @@ def _create_resnet(variant, pretrained: bool = False, **kwargs) -> ResNet:
     return build_model_with_cfg(ResNet, variant, pretrained, **kwargs)
 
 
-@register_model()
+@register_model("resnet10t_timm")
 def resnet10t(pretrained: bool = False, **kwargs) -> ResNet:
     """Constructs a ResNet-10-T model.
     """
@@ -605,6 +589,13 @@ def resnet18(pretrained: bool = False, **kwargs) -> ResNet:
     return _create_resnet('resnet18', pretrained, **dict(model_args, **kwargs))
 
 
+@register_model("resnet18dp_timm")
+def resnet18dp(pretrained: bool = False, **kwargs) -> ResNet:
+    """Constructs a ResNet-18 model.
+    """
+    model_args = dict(block=BasicBlock, layers=[2, 2, 2, 2], drop_path_rate=0.3)
+    return _create_resnet('resnet18', pretrained, **dict(model_args, **kwargs))
+
 
 def resnet18d(pretrained: bool = False, **kwargs) -> ResNet:
     """Constructs a ResNet-18-D model.
@@ -620,6 +611,14 @@ def resnet34(pretrained: bool = False, **kwargs) -> ResNet:
     model_args = dict(block=BasicBlock, layers=[3, 4, 6, 3])
     return _create_resnet('resnet34', pretrained, **dict(model_args, **kwargs))
 
+
+
+@register_model("resnet34dp_timm")
+def resnet34dp(pretrained: bool = False, **kwargs) -> ResNet:
+    """Constructs a ResNet-34 model.
+    """
+    model_args = dict(block=BasicBlock, layers=[3, 4, 6, 3], drop_path_rate=0.4)
+    return _create_resnet('resnet34', pretrained, **dict(model_args, **kwargs))
 
 
 def resnet34d(pretrained: bool = False, **kwargs) -> ResNet:
@@ -653,13 +652,20 @@ def resnet26d(pretrained: bool = False, **kwargs) -> ResNet:
     return _create_resnet('resnet26d', pretrained, **dict(model_args, **kwargs))
 
 
-
+@register_model("resnet50_timm")
 def resnet50(pretrained: bool = False, **kwargs) -> ResNet:
     """Constructs a ResNet-50 model.
     """
     model_args = dict(block=Bottleneck, layers=[3, 4, 6, 3])
     return _create_resnet('resnet50', pretrained, **dict(model_args, **kwargs))
 
+
+@register_model("resnet50dp_timm")
+def resnet50dp(pretrained: bool = False, **kwargs) -> ResNet:
+    """Constructs a ResNet-50 model.
+    """
+    model_args = dict(block=Bottleneck, layers=[3, 4, 6, 3], drop_path_rate=0.5)
+    return _create_resnet('resnet50', pretrained, **dict(model_args, **kwargs))
 
 
 def resnet50c(pretrained: bool = False, **kwargs) -> ResNet:
