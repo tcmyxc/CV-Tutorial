@@ -18,3 +18,9 @@ def init_seeds(seed=0):
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed) # if you are using multi-GPU
     cudnn.benchmark, cudnn.deterministic = (False, True) if seed == 0 else (True, False)
+
+
+def get_num_workers(workers):
+    nd = torch.cuda.device_count()  # number of CUDA devices
+    nw = min([os.cpu_count() // max(nd, 1), workers])  # number of workers
+    return nw
