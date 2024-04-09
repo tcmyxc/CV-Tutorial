@@ -133,6 +133,8 @@ def evaluate(model, criterion, data_loader, device, print_freq=100, log_suffix="
 def main(args):
     global best_acc1
 
+    print(f"[INFO] rank: {RANK}")
+
     if RANK in {-1, 0}:  # 在第一个进程中打印信息，并实例化tensorboard
         # 获取当前时间
         timestamp = datetime.datetime.now()
@@ -152,7 +154,6 @@ def main(args):
         # 将日志在控制台和文件都打印
         sys.stdout = Logger(osp.join(args.output_dir, log_file_name))
 
-        print(f"[INFO] rank: {RANK}")
         print(f"[INFO] result path: {osp.abspath(args.output_dir)}\n", flush=True)
 
         # 实例化tensorboard
@@ -168,6 +169,7 @@ def main(args):
     init_seeds(seed=args.seed)
 
     # Get cpu, gpu or mps device for training.
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_ids
     device = (
         "cuda"
         if torch.cuda.is_available()
@@ -472,6 +474,9 @@ def get_args_parser(add_help=True):
 
     parser.add_argument("--weights", default=None, type=str, help="the weights enum name to load")
     parser.add_argument("--seed", default=0, type=int)
+
+    # device ids, -1 refer to cpu
+    parser.add_argument("--gpu_ids", default="-1", type=str, help="cuda device, i.e. 0 or 0,1,2,3")
 
     return parser.parse_args()
 
