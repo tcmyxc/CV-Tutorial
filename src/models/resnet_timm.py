@@ -410,7 +410,7 @@ class ResNet(nn.Module):
             drop_rate: float = 0.0,
             drop_path_rate: float = 0.,
             drop_block_rate: float = 0.,
-            zero_init_last: bool = True,
+            zero_init_last: bool = False,
             block_args: Optional[Dict[str, Any]] = None,
             last_stride: int = 1,
     ):
