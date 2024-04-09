@@ -683,7 +683,7 @@ def resnet50d(pretrained: bool = False, **kwargs) -> ResNet:
     return _create_resnet('resnet50d', pretrained, **dict(model_args, **kwargs))
 
 
-@register_model("resnet50d_dp_timm")
+@register_model("resnet50_e5_dp")
 def resnet50d_dp(pretrained: bool = False, **kwargs) -> ResNet:
     """Constructs a ResNet-50-D model.
     """
