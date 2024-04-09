@@ -675,11 +675,19 @@ def resnet50c(pretrained: bool = False, **kwargs) -> ResNet:
     return _create_resnet('resnet50c', pretrained, **dict(model_args, **kwargs))
 
 
-
+@register_model("resnet50d_timm")
 def resnet50d(pretrained: bool = False, **kwargs) -> ResNet:
     """Constructs a ResNet-50-D model.
     """
-    model_args = dict(block=Bottleneck, layers=[3, 4, 6, 3], stem_width=32, stem_type='deep', avg_down=True)
+    model_args = dict(block=Bottleneck, layers=[3, 4, 6, 3], avg_down=True)
+    return _create_resnet('resnet50d', pretrained, **dict(model_args, **kwargs))
+
+
+@register_model("resnet50d_dp_timm")
+def resnet50d_dp(pretrained: bool = False, **kwargs) -> ResNet:
+    """Constructs a ResNet-50-D model.
+    """
+    model_args = dict(block=Bottleneck, layers=[3, 4, 6, 3], avg_down=True, drop_path_rate=0.5)
     return _create_resnet('resnet50d', pretrained, **dict(model_args, **kwargs))
 
 
