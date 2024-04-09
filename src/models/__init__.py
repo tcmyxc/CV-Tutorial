@@ -55,6 +55,7 @@ from models import(
     resnet_torch,
     pyramidnet,
     convnext,
+    resnet_timm,
 )
 # act layers
 from layers import get_act_layer

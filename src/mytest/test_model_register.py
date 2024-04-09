@@ -8,7 +8,7 @@ print(list_models())
 
 parser = argparse.ArgumentParser()
 # 模型架构
-parser.add_argument("--model", default="convnext_tiny", type=str, help="model name")
+parser.add_argument("--model", default="resnet50dp_timm", type=str, help="model name")
 parser.add_argument(
     "--model_lib",
     default="custom", type=str,
