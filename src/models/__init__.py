@@ -45,6 +45,7 @@ from models import(
     resnet_bneck,
     resnet_cifar,
     resnet_e1,
+    resnet_e1d,
     resnet_e2,
     resnet_e3,
     resnet_e4,
