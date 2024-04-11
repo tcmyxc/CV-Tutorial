@@ -11,8 +11,9 @@ def get_stl10(data_root='data', **kwargs):
         root=data_root,
         split='train',
         download=True,
+        # ref cutout setting
         transform=transforms.Compose([
-            transforms.RandomCrop(96, padding=4),
+            transforms.RandomCrop(96, padding=12),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize(_MEAN, _STD)
