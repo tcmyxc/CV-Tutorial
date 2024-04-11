@@ -86,7 +86,12 @@ def load_model(args, num_classes=10, **kwargs):
             print("[INFO] act_layer:", args.act_layer)
             model = get_model(args.model, num_classes=num_classes, act_layer=act_layer)
         elif args.model in list_models():
-            model = get_model(args.model, num_classes=num_classes)
+            if args.drop_path is not None:
+                model = get_model(args.model, num_classes=num_classes, drop_path_rate=args.drop_path)
+            elif args.drop_block is not None:
+                model = get_model(args.model, num_classes=num_classes, drop_block_rate=args.drop_block)
+            else:
+                model = get_model(args.model, num_classes=num_classes)
     else:
         raise NotImplementedError(args.model)
 

@@ -473,6 +473,10 @@ def get_args_parser(add_help=True):
     parser.add_argument("--weights", default=None, type=str, help="the weights enum name to load")
     parser.add_argument("--seed", default=0, type=int)
 
+    # drop path and drop block
+    parser.add_argument('--drop_path', type=float, default=None, help='Drop path rate (default: None)')
+    parser.add_argument('--drop_block', type=float, default=None, help='Drop block rate (default: None)')
+
     return parser.parse_args()
 
 
