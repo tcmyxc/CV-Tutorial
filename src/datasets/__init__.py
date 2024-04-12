@@ -6,7 +6,7 @@ ROOT = FILE.parents[1]  # root directory of current file
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 
-from datasets import cifar10, cifar100, svhn, stl10, tiny_imagenet
+from datasets import cifar10, cifar100, svhn, stl10, tiny_imagenet, cifar100_big
 
 
 def get_dataset(data_name, data_root, **kwargs):
@@ -16,6 +16,8 @@ def get_dataset(data_name, data_root, **kwargs):
         return cifar10.get_cifar10(data_root, **kwargs)
     elif data_name == 'cifar100':
         return cifar100.get_cifar100(data_root, **kwargs)
+    elif data_name == 'cifar100_big':
+        return cifar100_big.get_cifar100(data_root, **kwargs)
     elif data_name == 'svhn':
         return svhn.get_svhn(data_root, **kwargs)
     elif data_name == 'stl10':
