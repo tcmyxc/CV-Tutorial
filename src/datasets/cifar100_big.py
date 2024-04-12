@@ -26,7 +26,8 @@ def get_cifar100(data_root='data', random_erase_prob=0.0, auto_augment=False, cu
     num_classes = 100
 
     train_transform = transforms.Compose([
-        transforms.RandomResizedCrop(crop_size),
+        transforms.RandomCrop(32, padding=4),
+        transforms.Resize(crop_size),
         transforms.RandomHorizontalFlip(),
     ])
     if auto_augment:
