@@ -13,7 +13,10 @@ from .cutout import Cutout
 
 _MEAN, _STD = (0.5071, 0.4866, 0.4409), (0.2673, 0.2564, 0.2762)
 
+crop_size = 64
+
 val_transform = transforms.Compose([
+    transforms.Resize(crop_size),
     transforms.ToTensor(),
     transforms.Normalize(_MEAN, _STD),
 ])
@@ -23,7 +26,7 @@ def get_cifar100(data_root='data', random_erase_prob=0.0, auto_augment=False, cu
     num_classes = 100
 
     train_transform = transforms.Compose([
-        transforms.RandomResizedCrop(64),
+        transforms.RandomResizedCrop(crop_size),
         transforms.RandomHorizontalFlip(),
     ])
     if auto_augment:
