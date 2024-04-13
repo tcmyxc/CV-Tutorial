@@ -53,6 +53,7 @@ from models import(
     resnet_e6,
     resnet_e6_v2,
     resnet_e5_convnext,
+    resnet_e5_trans,
     resnet_torch,
     pyramidnet,
     convnext,
@@ -86,9 +87,11 @@ def load_model(args, num_classes=10, **kwargs):
             print("[INFO] act_layer:", args.act_layer)
             model = get_model(args.model, num_classes=num_classes, act_layer=act_layer)
         elif args.model in list_models():
-            if args.drop_path is not None:
+            drop_path = getattr(args, "drop_path", None)
+            drop_block = getattr(args, "drop_block", None)
+            if drop_path is not None:
                 model = get_model(args.model, num_classes=num_classes, drop_path_rate=args.drop_path)
-            elif args.drop_block is not None:
+            elif drop_block is not None:
                 model = get_model(args.model, num_classes=num_classes, drop_block_rate=args.drop_block)
             else:
                 model = get_model(args.model, num_classes=num_classes)

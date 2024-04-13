@@ -15,13 +15,13 @@ class SwinT(nn.Module):
     def __init__(
             self,
             depth=3,
-            n_feats=50,
+            n_feats=1024,
             num_heads=5,
-            window_size=8,
-            resolution=64,
+            window_size=2,
+            resolution=8,
             mlp_ratio=2.0,
     ):
-        super(SwinT, self).__init__()
+        super().__init__()
         m = []
         m.append(BasicLayer(dim=n_feats,
                             depth=depth,
@@ -38,7 +38,7 @@ class SwinT(nn.Module):
         return res
 
 class BasicLayer(nn.Module):
-    def __init__(self, dim, resolution, embed_dim=50, depth=2, num_heads=8, window_size=8,
+    def __init__(self, dim, resolution, depth=2, num_heads=8, window_size=8,
                  mlp_ratio=1., qkv_bias=True, qk_scale=None, norm_layer=None):
 
         super().__init__()

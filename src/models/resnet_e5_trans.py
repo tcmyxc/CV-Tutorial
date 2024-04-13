@@ -184,9 +184,9 @@ class ResNet(nn.Module):
         self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2, dilate=replace_stride_with_dilation[0])
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2, dilate=replace_stride_with_dilation[1])
-        self.layer4 = self._make_layer(block, 512, layers[3], stride=last_stride, dilate=replace_stride_with_dilation[2])
+        self.layer4 = SwinT(depth=layers[3], n_feats=256 * block.expansion, num_heads=16, window_size=2, mlp_ratio=2)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = nn.Linear(512 * block.expansion, num_classes)
+        self.fc = nn.Linear(256 * block.expansion, num_classes)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -295,7 +295,7 @@ def resnet34(**kwargs: Any) -> ResNet:
     return _resnet("resnet34", BasicBlock, [3, 4, 6, 3], **kwargs)
 
 
-@register_model("resnet50_E5")
+@register_model("resnet50_E5_ST")
 def resnet50(**kwargs: Any) -> ResNet:
     r"""ResNet-50 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_.
@@ -303,7 +303,6 @@ def resnet50(**kwargs: Any) -> ResNet:
     return _resnet("resnet50", Bottleneck, [3, 4, 6, 3], **kwargs)
 
 
-@register_model("resnet101_E5")
 def resnet101(**kwargs: Any) -> ResNet:
     r"""ResNet-101 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_.
@@ -311,7 +310,6 @@ def resnet101(**kwargs: Any) -> ResNet:
     return _resnet("resnet101", Bottleneck, [3, 4, 23, 3], **kwargs)
 
 
-@register_model("resnet152_E5")
 def resnet152(**kwargs: Any) -> ResNet:
     r"""ResNet-152 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_.
@@ -337,7 +335,6 @@ def resnext101_32x8d(**kwargs: Any) -> ResNet:
     return _resnet("resnext101_32x8d", Bottleneck, [3, 4, 23, 3], **kwargs)
 
 
-@register_model("wide_resnet50_2_E5")
 def wide_resnet50_2(**kwargs: Any) -> ResNet:
     r"""Wide ResNet-50-2 model from
     `"Wide Residual Networks" <https://arxiv.org/pdf/1605.07146.pdf>`_.
@@ -351,7 +348,6 @@ def wide_resnet50_2(**kwargs: Any) -> ResNet:
     return _resnet("wide_resnet50_2", Bottleneck, [3, 4, 6, 3], **kwargs)
 
 
-@register_model("wide_resnet101_2_E5")
 def wide_resnet101_2(**kwargs: Any) -> ResNet:
     r"""Wide ResNet-101-2 model from
     `"Wide Residual Networks" <https://arxiv.org/pdf/1605.07146.pdf>`_.
