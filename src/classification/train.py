@@ -157,9 +157,7 @@ def main(args):
 
         # 实例化tensorboard
         tb_writer = SummaryWriter(args.output_dir)
-        print(f'[INFO] Start Tensorboard with '
-              f'"tensorboard --logdir={osp.abspath(args.output_dir)}", '
-              f'view at http://localhost:6006/\n')
+        print(f'[INFO] Start Tensorboard with "tensorboard --logdir={osp.abspath(args.output_dir)}\n"')
 
     utils.init_distributed_mode(args)  # 初始化分布式环境
     print_args(args)
@@ -396,12 +394,7 @@ def get_args_parser(add_help=True):
 
     # 模型架构
     parser.add_argument("--model", default="resnet18", type=str, help="model name")
-    parser.add_argument(
-        "--model_lib",
-        default="torch", type=str,
-        choices=["custom", "torch", "timm", "cifar100", "qt"],
-        help="model library",
-    )
+    parser.add_argument("--model_lib", default="custom", type=str, choices=["custom", "torch", "timm", "cifar100", "qt"], help="model library")
 
     parser.add_argument("-b", "--batch-size", default=128, type=int, help="images per gpu, the total batch size is $NGPU x batch_size")
     parser.add_argument("--epochs", default=200, type=int, metavar="N", help="number of total epochs to run")
@@ -409,10 +402,14 @@ def get_args_parser(add_help=True):
     parser.add_argument("--opt", default="sgd", type=str, help="optimizer")
     parser.add_argument("--lr", default=0.01, type=float, help="initial learning rate")
     parser.add_argument("--momentum", default=0.9, type=float, metavar="M", help="momentum")
-    parser.add_argument("--wd", "--weight-decay", default=5e-4, type=float, metavar="W", help="weight decay (default: 5e-4)", dest="weight_decay")
-    parser.add_argument("--norm-weight-decay", default=None, type=float, help="weight decay for Normalization layers (default: None, same value as --wd)")
-    parser.add_argument("--bias-weight-decay", default=None, type=float, help="weight decay for bias parameters of all layers (default: None, same value as --wd)")
-    parser.add_argument("--transformer-embedding-decay", default=None, type=float, help="weight decay for embedding parameters for vision transformer models (default: None, same value as --wd)")
+    parser.add_argument("--wd", "--weight-decay", default=5e-4, type=float, metavar="W",
+                        help="weight decay (default: 5e-4)", dest="weight_decay")
+    parser.add_argument("--norm-weight-decay", default=None, type=float,
+                        help="weight decay for Normalization layers (default: None, same value as --wd)")
+    parser.add_argument("--bias-weight-decay", default=None, type=float,
+                        help="weight decay for bias parameters of all layers (default: None, same value as --wd)")
+    parser.add_argument("--transformer-embedding-decay", default=None, type=float,
+                        help="weight decay for embedding parameters for vision transformer models (default: None, same value as --wd)")
 
     # 损失函数
     parser.add_argument("--loss_type", default="ce", type=str, help="loss function")
@@ -464,8 +461,10 @@ def get_args_parser(add_help=True):
 
     # 模型参数是否EMA
     parser.add_argument("--model-ema", action="store_true", help="enable tracking Exponential Moving Average of model parameters")
-    parser.add_argument("--model-ema-steps", type=int, default=32, help="the number of iterations that controls how often to update the EMA model (default: 32)")
-    parser.add_argument("--model-ema-decay", type=float, default=0.99998, help="decay factor for Exponential Moving Average of model parameters (default: 0.99998)")
+    parser.add_argument("--model-ema-steps", type=int, default=32,
+                        help="the number of iterations that controls how often to update the EMA model (default: 32)")
+    parser.add_argument("--model-ema-decay", type=float, default=0.99998,
+                        help="decay factor for Exponential Moving Average of model parameters (default: 0.99998)")
 
     parser.add_argument("--clip-grad-norm", default=None, type=float, help="the maximum gradient norm (default None)")
 
