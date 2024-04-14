@@ -6,6 +6,40 @@ from torch import Tensor
 from torchvision.transforms import functional as F
 
 
+def get_module(use_v2=False):
+    # We need a protected import to avoid the V2 warning in case just V1 is used
+    if use_v2:
+        import torchvision.transforms.v2
+
+        return torchvision.transforms.v2
+    else:
+        import torchvision.transforms
+
+        return torchvision.transforms
+
+
+def get_mixup_cutmix(mixup_alpha, cutmix_alpha, num_classes, use_v2=False):
+    transforms_module = get_module(use_v2)
+
+    mixup_cutmix = []
+    if mixup_alpha > 0:
+        mixup_cutmix.append(
+            transforms_module.MixUp(alpha=mixup_alpha, num_classes=num_classes)
+            if use_v2
+            else RandomMixup(num_classes=num_classes, p=1.0, alpha=mixup_alpha)
+        )
+    if cutmix_alpha > 0:
+        mixup_cutmix.append(
+            transforms_module.CutMix(alpha=mixup_alpha, num_classes=num_classes)
+            if use_v2
+            else RandomCutmix(num_classes=num_classes, p=1.0, alpha=mixup_alpha)
+        )
+    if not mixup_cutmix:
+        return None
+
+    return transforms_module.RandomChoice(mixup_cutmix)
+
+
 class RandomMixup(torch.nn.Module):
     """Randomly apply Mixup to the provided batch and targets.
     The class implements the data augmentations as described in the paper

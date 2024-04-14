@@ -10,7 +10,6 @@ import warnings
 
 import torch
 import torch.utils.data
-import torchvision
 from torch import nn
 from torch.utils.data.dataloader import default_collate
 from torch.utils.tensorboard import SummaryWriter
@@ -24,7 +23,7 @@ ROOT = FILE.parents[1]  # root directory
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 
-import transforms
+from transforms import get_mixup_cutmix
 from utils import torch_utils as utils
 from sampler import RASampler
 from datasets import get_dataset
@@ -200,19 +199,17 @@ def main(args):
             train_sampler = torch.utils.data.RandomSampler(train_dataset)
         test_sampler = torch.utils.data.SequentialSampler(test_dataset)
 
-    collate_fn = None
-
     # mixup 和 cutmix 数据增强
-    mixup_transforms = []
-    if args.mixup_alpha > 0.0:
-        mixup_transforms.append(transforms.RandomMixup(num_classes, p=1.0, alpha=args.mixup_alpha))
-    if args.cutmix_alpha > 0.0:
-        mixup_transforms.append(transforms.RandomCutmix(num_classes, p=1.0, alpha=args.cutmix_alpha))
-    if mixup_transforms:
-        mixupcutmix = torchvision.transforms.RandomChoice(mixup_transforms)
-
+    mixup_cutmix = get_mixup_cutmix(
+        mixup_alpha=args.mixup_alpha,
+        cutmix_alpha=args.cutmix_alpha,
+        num_classes=num_classes,
+    )
+    if mixup_cutmix is not None:
         def collate_fn(batch):
-            return mixupcutmix(*default_collate(batch))
+            return mixup_cutmix(*default_collate(batch))
+    else:
+        collate_fn = default_collate
 
     print("[INFO] Creating data loaders")
     if args.distributed:
