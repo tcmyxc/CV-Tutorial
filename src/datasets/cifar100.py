@@ -2,6 +2,8 @@ import sys
 from pathlib import Path
 
 from torchvision import transforms, datasets
+from torchvision.transforms import autoaugment as TAA
+from torchvision.transforms.functional import InterpolationMode
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # root directory of current file
@@ -27,7 +29,16 @@ def get_cifar100(data_root='data', random_erase_prob=0.0, auto_augment=False, cu
         transforms.RandomHorizontalFlip(),
     ])
     if auto_augment:
-        train_transform.transforms.append(CIFAR10Policy())
+        auto_augment_policy = kwargs.pop('auto_augment_policy', None)
+        if auto_augment_policy is not None:
+            if auto_augment_policy == "ra":
+                train_transform.transforms.append(TAA.RandAugment(interpolation=InterpolationMode.BILINEAR))
+            elif auto_augment_policy == "ta_wide":
+                train_transform.transforms.append(TAA.TrivialAugmentWide(interpolation=InterpolationMode.BILINEAR))
+            elif auto_augment_policy == "augmix":
+                train_transform.transforms.append(TAA.AugMix(interpolation=InterpolationMode.BILINEAR))
+        else:
+            train_transform.transforms.append(CIFAR10Policy())
 
     train_transform.transforms.append(transforms.ToTensor())
 

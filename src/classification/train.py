@@ -184,6 +184,7 @@ def main(args):
         data_root=args.data_path,
         random_erase_prob=args.random_erase,
         auto_augment=args.auto_augment,
+        auto_augment_policy=args.auto_augment_policy,
         cutout=args.cutout,
     )
 
@@ -427,6 +428,7 @@ def get_args_parser(add_help=True):
 
     # auto augment
     parser.add_argument("--auto_augment", action="store_true", help="auto augment")
+    parser.add_argument("--auto_augment_policy", default=None, type=str, help="auto augment policy (default: None)")
     # cutout
     parser.add_argument("--cutout", action="store_true", help="auto augment")
     # 随机擦除
