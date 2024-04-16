@@ -12,6 +12,8 @@ if str(ROOT) not in sys.path:
 
 from .autoaugment import CIFAR10Policy
 from .cutout import Cutout
+from .archive import fa_reduced_cifar10
+from .misc import Augmentation
 
 _MEAN, _STD = (0.5071, 0.4866, 0.4409), (0.2673, 0.2564, 0.2762)
 
@@ -37,6 +39,9 @@ def get_cifar100(data_root='data', random_erase_prob=0.0, auto_augment=False, cu
                 train_transform.transforms.append(TAA.TrivialAugmentWide(interpolation=InterpolationMode.BILINEAR))
             elif auto_augment_policy == "augmix":
                 train_transform.transforms.append(TAA.AugMix(interpolation=InterpolationMode.BILINEAR))
+            elif auto_augment_policy == "fa":
+                # ref https://github.com/tcmyxc/fast-autoaugment/blob/master/FastAutoAugment/data.py#L91
+                train_transform.transforms.insert(0, Augmentation(fa_reduced_cifar10()))
         else:
             train_transform.transforms.append(CIFAR10Policy())
 
