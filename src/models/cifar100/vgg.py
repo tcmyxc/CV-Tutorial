@@ -9,6 +9,7 @@
 '''VGG11/13/16/19 in Pytorch.'''
 
 import torch.nn as nn
+from functools import partial
 
 from models._api import register_model
 
@@ -22,16 +23,18 @@ cfg = {
 
 class VGG(nn.Module):
 
-    def __init__(self, features, num_classes=100, **kwargs):
+    def __init__(self, features, num_classes=100, act_layer=None, **kwargs):
         super().__init__()
+        act_layer = act_layer or partial(nn.ReLU, inplace=True)
+
         self.features = features
 
         self.classifier = nn.Sequential(
             nn.Linear(512, 4096),
-            nn.ReLU(inplace=True),
+            act_layer(),
             nn.Dropout(),
             nn.Linear(4096, 4096),
-            nn.ReLU(inplace=True),
+            act_layer(),
             nn.Dropout(),
             nn.Linear(4096, num_classes)
         )
@@ -44,7 +47,7 @@ class VGG(nn.Module):
         return output
 
 
-def make_layers(cfg, batch_norm=False):
+def make_layers(cfg, batch_norm=False, act_layer=None,  **kwargs):
     layers = []
 
     input_channel = 3
@@ -58,7 +61,7 @@ def make_layers(cfg, batch_norm=False):
         if batch_norm:
             layers += [nn.BatchNorm2d(l)]
 
-        layers += [nn.ReLU(inplace=True)]
+        layers += [act_layer()]
         input_channel = l
 
     return nn.Sequential(*layers)
@@ -72,9 +75,9 @@ def vgg13_bn():
     return VGG(make_layers(cfg['B'], batch_norm=True))
 
 
-@register_model("vgg16")
+@register_model("vgg16_c100")
 def vgg16_bn(**kwargs):
-    return VGG(make_layers(cfg['D'], batch_norm=True), **kwargs)
+    return VGG(make_layers(cfg['D'], batch_norm=True, **kwargs), **kwargs)
 
 
 def vgg19_bn():
