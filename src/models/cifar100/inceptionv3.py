@@ -9,22 +9,23 @@
 
 import torch
 import torch.nn as nn
+from functools import partial
 
 from models._api import register_model
 
 
 class BasicConv2d(nn.Module):
 
-    def __init__(self, input_channels, output_channels, **kwargs):
+    def __init__(self, input_channels, output_channels, act_layer=None, **kwargs):
         super().__init__()
         self.conv = nn.Conv2d(input_channels, output_channels, bias=False, **kwargs)
         self.bn = nn.BatchNorm2d(output_channels)
-        self.relu = nn.ReLU(inplace=True)
+        self.act = act_layer() or partial(nn.ReLU, inplace=True)()
 
     def forward(self, x):
         x = self.conv(x)
         x = self.bn(x)
-        x = self.relu(x)
+        x = self.act(x)
 
         return x
 
@@ -32,24 +33,25 @@ class BasicConv2d(nn.Module):
 # same naive inception module
 class InceptionA(nn.Module):
 
-    def __init__(self, input_channels, pool_features):
+    def __init__(self, input_channels, pool_features, act_layer=None,):
         super().__init__()
-        self.branch1x1 = BasicConv2d(input_channels, 64, kernel_size=1)
+        act_layer = act_layer or partial(nn.ReLU, inplace=True)
+        self.branch1x1 = BasicConv2d(input_channels, 64, kernel_size=1, act_layer=act_layer)
 
         self.branch5x5 = nn.Sequential(
-            BasicConv2d(input_channels, 48, kernel_size=1),
-            BasicConv2d(48, 64, kernel_size=5, padding=2)
+            BasicConv2d(input_channels, 48, kernel_size=1, act_layer=act_layer),
+            BasicConv2d(48, 64, kernel_size=5, padding=2, act_layer=act_layer)
         )
 
         self.branch3x3 = nn.Sequential(
-            BasicConv2d(input_channels, 64, kernel_size=1),
-            BasicConv2d(64, 96, kernel_size=3, padding=1),
-            BasicConv2d(96, 96, kernel_size=3, padding=1)
+            BasicConv2d(input_channels, 64, kernel_size=1, act_layer=act_layer),
+            BasicConv2d(64, 96, kernel_size=3, padding=1, act_layer=act_layer),
+            BasicConv2d(96, 96, kernel_size=3, padding=1, act_layer=act_layer)
         )
 
         self.branchpool = nn.Sequential(
             nn.AvgPool2d(kernel_size=3, stride=1, padding=1),
-            BasicConv2d(input_channels, pool_features, kernel_size=3, padding=1)
+            BasicConv2d(input_channels, pool_features, kernel_size=3, padding=1, act_layer=act_layer)
         )
 
     def forward(self, x):
@@ -75,15 +77,16 @@ class InceptionA(nn.Module):
 # Factorization into smaller convolutions
 class InceptionB(nn.Module):
 
-    def __init__(self, input_channels):
+    def __init__(self, input_channels, act_layer=None,):
         super().__init__()
+        act_layer = act_layer or partial(nn.ReLU, inplace=True)
 
-        self.branch3x3 = BasicConv2d(input_channels, 384, kernel_size=3, stride=2)
+        self.branch3x3 = BasicConv2d(input_channels, 384, kernel_size=3, stride=2, act_layer=act_layer)
 
         self.branch3x3stack = nn.Sequential(
-            BasicConv2d(input_channels, 64, kernel_size=1),
-            BasicConv2d(64, 96, kernel_size=3, padding=1),
-            BasicConv2d(96, 96, kernel_size=3, stride=2)
+            BasicConv2d(input_channels, 64, kernel_size=1, act_layer=act_layer),
+            BasicConv2d(64, 96, kernel_size=3, padding=1, act_layer=act_layer),
+            BasicConv2d(96, 96, kernel_size=3, stride=2, act_layer=act_layer)
         )
 
         self.branchpool = nn.MaxPool2d(kernel_size=3, stride=2)
@@ -109,9 +112,10 @@ class InceptionB(nn.Module):
 
 # Factorizing Convolutions with Large Filter Size
 class InceptionC(nn.Module):
-    def __init__(self, input_channels, channels_7x7):
+    def __init__(self, input_channels, channels_7x7, act_layer=None,):
         super().__init__()
-        self.branch1x1 = BasicConv2d(input_channels, 192, kernel_size=1)
+        act_layer = act_layer or partial(nn.ReLU, inplace=True)
+        self.branch1x1 = BasicConv2d(input_channels, 192, kernel_size=1, act_layer=act_layer)
 
         c7 = channels_7x7
 
@@ -119,22 +123,22 @@ class InceptionC(nn.Module):
         # convolution by a 1 × n convolution followed by a n × 1 convolution and the
         # computational cost saving increases dramatically as n grows (see figure 6).
         self.branch7x7 = nn.Sequential(
-            BasicConv2d(input_channels, c7, kernel_size=1),
-            BasicConv2d(c7, c7, kernel_size=(7, 1), padding=(3, 0)),
-            BasicConv2d(c7, 192, kernel_size=(1, 7), padding=(0, 3))
+            BasicConv2d(input_channels, c7, kernel_size=1, act_layer=act_layer),
+            BasicConv2d(c7, c7, kernel_size=(7, 1), padding=(3, 0), act_layer=act_layer),
+            BasicConv2d(c7, 192, kernel_size=(1, 7), padding=(0, 3), act_layer=act_layer)
         )
 
         self.branch7x7stack = nn.Sequential(
-            BasicConv2d(input_channels, c7, kernel_size=1),
-            BasicConv2d(c7, c7, kernel_size=(7, 1), padding=(3, 0)),
-            BasicConv2d(c7, c7, kernel_size=(1, 7), padding=(0, 3)),
-            BasicConv2d(c7, c7, kernel_size=(7, 1), padding=(3, 0)),
-            BasicConv2d(c7, 192, kernel_size=(1, 7), padding=(0, 3))
+            BasicConv2d(input_channels, c7, kernel_size=1, act_layer=act_layer),
+            BasicConv2d(c7, c7, kernel_size=(7, 1), padding=(3, 0), act_layer=act_layer),
+            BasicConv2d(c7, c7, kernel_size=(1, 7), padding=(0, 3), act_layer=act_layer),
+            BasicConv2d(c7, c7, kernel_size=(7, 1), padding=(3, 0), act_layer=act_layer),
+            BasicConv2d(c7, 192, kernel_size=(1, 7), padding=(0, 3), act_layer=act_layer)
         )
 
         self.branch_pool = nn.Sequential(
             nn.AvgPool2d(kernel_size=3, stride=1, padding=1),
-            BasicConv2d(input_channels, 192, kernel_size=1),
+            BasicConv2d(input_channels, 192, kernel_size=1, act_layer=act_layer),
         )
 
     def forward(self, x):
@@ -157,19 +161,20 @@ class InceptionC(nn.Module):
 
 class InceptionD(nn.Module):
 
-    def __init__(self, input_channels):
+    def __init__(self, input_channels, act_layer=None,):
         super().__init__()
+        act_layer = act_layer or partial(nn.ReLU, inplace=True)
 
         self.branch3x3 = nn.Sequential(
-            BasicConv2d(input_channels, 192, kernel_size=1),
-            BasicConv2d(192, 320, kernel_size=3, stride=2)
+            BasicConv2d(input_channels, 192, kernel_size=1, act_layer=act_layer),
+            BasicConv2d(192, 320, kernel_size=3, stride=2, act_layer=act_layer)
         )
 
         self.branch7x7 = nn.Sequential(
-            BasicConv2d(input_channels, 192, kernel_size=1),
-            BasicConv2d(192, 192, kernel_size=(1, 7), padding=(0, 3)),
-            BasicConv2d(192, 192, kernel_size=(7, 1), padding=(3, 0)),
-            BasicConv2d(192, 192, kernel_size=3, stride=2)
+            BasicConv2d(input_channels, 192, kernel_size=1, act_layer=act_layer),
+            BasicConv2d(192, 192, kernel_size=(1, 7), padding=(0, 3), act_layer=act_layer),
+            BasicConv2d(192, 192, kernel_size=(7, 1), padding=(3, 0), act_layer=act_layer),
+            BasicConv2d(192, 192, kernel_size=3, stride=2, act_layer=act_layer)
         )
 
         self.branchpool = nn.AvgPool2d(kernel_size=3, stride=2)
@@ -191,22 +196,23 @@ class InceptionD(nn.Module):
 
 # same
 class InceptionE(nn.Module):
-    def __init__(self, input_channels):
+    def __init__(self, input_channels, act_layer=None,):
         super().__init__()
-        self.branch1x1 = BasicConv2d(input_channels, 320, kernel_size=1)
+        act_layer = act_layer or partial(nn.ReLU, inplace=True)
+        self.branch1x1 = BasicConv2d(input_channels, 320, kernel_size=1, act_layer=act_layer)
 
-        self.branch3x3_1 = BasicConv2d(input_channels, 384, kernel_size=1)
-        self.branch3x3_2a = BasicConv2d(384, 384, kernel_size=(1, 3), padding=(0, 1))
-        self.branch3x3_2b = BasicConv2d(384, 384, kernel_size=(3, 1), padding=(1, 0))
+        self.branch3x3_1 = BasicConv2d(input_channels, 384, kernel_size=1, act_layer=act_layer)
+        self.branch3x3_2a = BasicConv2d(384, 384, kernel_size=(1, 3), padding=(0, 1), act_layer=act_layer)
+        self.branch3x3_2b = BasicConv2d(384, 384, kernel_size=(3, 1), padding=(1, 0), act_layer=act_layer)
 
-        self.branch3x3stack_1 = BasicConv2d(input_channels, 448, kernel_size=1)
-        self.branch3x3stack_2 = BasicConv2d(448, 384, kernel_size=3, padding=1)
-        self.branch3x3stack_3a = BasicConv2d(384, 384, kernel_size=(1, 3), padding=(0, 1))
-        self.branch3x3stack_3b = BasicConv2d(384, 384, kernel_size=(3, 1), padding=(1, 0))
+        self.branch3x3stack_1 = BasicConv2d(input_channels, 448, kernel_size=1, act_layer=act_layer)
+        self.branch3x3stack_2 = BasicConv2d(448, 384, kernel_size=3, padding=1, act_layer=act_layer)
+        self.branch3x3stack_3a = BasicConv2d(384, 384, kernel_size=(1, 3), padding=(0, 1), act_layer=act_layer)
+        self.branch3x3stack_3b = BasicConv2d(384, 384, kernel_size=(3, 1), padding=(1, 0), act_layer=act_layer)
 
         self.branch_pool = nn.Sequential(
             nn.AvgPool2d(kernel_size=3, stride=1, padding=1),
-            BasicConv2d(input_channels, 192, kernel_size=1)
+            BasicConv2d(input_channels, 192, kernel_size=1, act_layer=act_layer)
         )
 
     def forward(self, x):
@@ -247,32 +253,33 @@ class InceptionE(nn.Module):
 
 class InceptionV3(nn.Module):
 
-    def __init__(self, num_classes=100, **kwargs):
+    def __init__(self, num_classes=100, act_layer=None, **kwargs):
         super().__init__()
-        self.Conv2d_1a_3x3 = BasicConv2d(3, 32, kernel_size=3, padding=1)
-        self.Conv2d_2a_3x3 = BasicConv2d(32, 32, kernel_size=3, padding=1)
-        self.Conv2d_2b_3x3 = BasicConv2d(32, 64, kernel_size=3, padding=1)
-        self.Conv2d_3b_1x1 = BasicConv2d(64, 80, kernel_size=1)
-        self.Conv2d_4a_3x3 = BasicConv2d(80, 192, kernel_size=3)
+        act_layer = act_layer or partial(nn.ReLU, inplace=True)
+        self.Conv2d_1a_3x3 = BasicConv2d(3, 32, kernel_size=3, padding=1, act_layer=act_layer)
+        self.Conv2d_2a_3x3 = BasicConv2d(32, 32, kernel_size=3, padding=1, act_layer=act_layer)
+        self.Conv2d_2b_3x3 = BasicConv2d(32, 64, kernel_size=3, padding=1, act_layer=act_layer)
+        self.Conv2d_3b_1x1 = BasicConv2d(64, 80, kernel_size=1, act_layer=act_layer)
+        self.Conv2d_4a_3x3 = BasicConv2d(80, 192, kernel_size=3, act_layer=act_layer)
 
         # naive inception module
-        self.Mixed_5b = InceptionA(192, pool_features=32)
-        self.Mixed_5c = InceptionA(256, pool_features=64)
-        self.Mixed_5d = InceptionA(288, pool_features=64)
+        self.Mixed_5b = InceptionA(192, pool_features=32, act_layer=act_layer)
+        self.Mixed_5c = InceptionA(256, pool_features=64, act_layer=act_layer)
+        self.Mixed_5d = InceptionA(288, pool_features=64, act_layer=act_layer)
 
         # downsample
-        self.Mixed_6a = InceptionB(288)
+        self.Mixed_6a = InceptionB(288, act_layer=act_layer)
 
-        self.Mixed_6b = InceptionC(768, channels_7x7=128)
-        self.Mixed_6c = InceptionC(768, channels_7x7=160)
-        self.Mixed_6d = InceptionC(768, channels_7x7=160)
-        self.Mixed_6e = InceptionC(768, channels_7x7=192)
+        self.Mixed_6b = InceptionC(768, channels_7x7=128, act_layer=act_layer)
+        self.Mixed_6c = InceptionC(768, channels_7x7=160, act_layer=act_layer)
+        self.Mixed_6d = InceptionC(768, channels_7x7=160, act_layer=act_layer)
+        self.Mixed_6e = InceptionC(768, channels_7x7=192, act_layer=act_layer)
 
         # downsample
-        self.Mixed_7a = InceptionD(768)
+        self.Mixed_7a = InceptionD(768, act_layer=act_layer)
 
-        self.Mixed_7b = InceptionE(1280)
-        self.Mixed_7c = InceptionE(2048)
+        self.Mixed_7b = InceptionE(1280, act_layer=act_layer)
+        self.Mixed_7c = InceptionE(2048, act_layer=act_layer)
 
         # 6*6 feature size
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
@@ -329,6 +336,6 @@ class InceptionV3(nn.Module):
         return x
 
 
-@register_model()
+@register_model("inceptionv3_c100")
 def inceptionv3(**kwargs):
     return InceptionV3(**kwargs)
