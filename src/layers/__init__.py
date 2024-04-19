@@ -10,5 +10,7 @@ def get_act_layer(act_layer: str):
         return nn.GELU
     elif act_layer == "hgelu":
         return HGELU
+    elif act_layer == "seqhgelu":
+        return SequecialHGELU
     else:
         raise NotImplementedError(act_layer)
