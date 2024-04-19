@@ -8,6 +8,7 @@
 """
 
 import torch.nn as nn
+from functools import partial
 
 from models._api import register_model
 
@@ -39,24 +40,24 @@ class SeperableConv2d(nn.Module):
 
 class EntryFlow(nn.Module):
 
-    def __init__(self):
+    def __init__(self, act_layer=None,):
         super().__init__()
         self.conv1 = nn.Sequential(
             nn.Conv2d(3, 32, 3, padding=1, bias=False),
             nn.BatchNorm2d(32),
-            nn.ReLU(inplace=True)
+            act_layer()
         )
 
         self.conv2 = nn.Sequential(
             nn.Conv2d(32, 64, 3, padding=1, bias=False),
             nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True)
+            act_layer()
         )
 
         self.conv3_residual = nn.Sequential(
             SeperableConv2d(64, 128, 3, padding=1),
             nn.BatchNorm2d(128),
-            nn.ReLU(inplace=True),
+            act_layer(),
             SeperableConv2d(128, 128, 3, padding=1),
             nn.BatchNorm2d(128),
             nn.MaxPool2d(3, stride=2, padding=1),
@@ -68,10 +69,10 @@ class EntryFlow(nn.Module):
         )
 
         self.conv4_residual = nn.Sequential(
-            nn.ReLU(inplace=True),
+            act_layer(),
             SeperableConv2d(128, 256, 3, padding=1),
             nn.BatchNorm2d(256),
-            nn.ReLU(inplace=True),
+            act_layer(),
             SeperableConv2d(256, 256, 3, padding=1),
             nn.BatchNorm2d(256),
             nn.MaxPool2d(3, stride=2, padding=1)
@@ -84,10 +85,10 @@ class EntryFlow(nn.Module):
 
         # no downsampling
         self.conv5_residual = nn.Sequential(
-            nn.ReLU(inplace=True),
+            act_layer(),
             SeperableConv2d(256, 728, 3, padding=1),
             nn.BatchNorm2d(728),
-            nn.ReLU(inplace=True),
+            act_layer(),
             SeperableConv2d(728, 728, 3, padding=1),
             nn.BatchNorm2d(728),
             nn.MaxPool2d(3, 1, padding=1)
@@ -117,22 +118,22 @@ class EntryFlow(nn.Module):
 
 class MiddleFLowBlock(nn.Module):
 
-    def __init__(self):
+    def __init__(self, act_layer=None,):
         super().__init__()
 
         self.shortcut = nn.Sequential()
         self.conv1 = nn.Sequential(
-            nn.ReLU(inplace=True),
+            act_layer(),
             SeperableConv2d(728, 728, 3, padding=1),
             nn.BatchNorm2d(728)
         )
         self.conv2 = nn.Sequential(
-            nn.ReLU(inplace=True),
+            act_layer(),
             SeperableConv2d(728, 728, 3, padding=1),
             nn.BatchNorm2d(728)
         )
         self.conv3 = nn.Sequential(
-            nn.ReLU(inplace=True),
+            act_layer(),
             SeperableConv2d(728, 728, 3, padding=1),
             nn.BatchNorm2d(728)
         )
@@ -148,33 +149,33 @@ class MiddleFLowBlock(nn.Module):
 
 
 class MiddleFlow(nn.Module):
-    def __init__(self, block):
+    def __init__(self, block, act_layer):
         super().__init__()
 
         # """then through the middle flow which is repeated eight times"""
-        self.middel_block = self._make_flow(block, 8)
+        self.middel_block = self._make_flow(block, 8, act_layer)
 
     def forward(self, x):
         x = self.middel_block(x)
         return x
 
-    def _make_flow(self, block, times):
+    def _make_flow(self, block, times, act_layer):
         flows = []
         for i in range(times):
-            flows.append(block())
+            flows.append(block(act_layer))
 
         return nn.Sequential(*flows)
 
 
 class ExitFLow(nn.Module):
 
-    def __init__(self):
+    def __init__(self, act_layer=None,):
         super().__init__()
         self.residual = nn.Sequential(
-            nn.ReLU(),
+            act_layer(),
             SeperableConv2d(728, 728, 3, padding=1),
             nn.BatchNorm2d(728),
-            nn.ReLU(),
+            act_layer(),
             SeperableConv2d(728, 1024, 3, padding=1),
             nn.BatchNorm2d(1024),
             nn.MaxPool2d(3, stride=2, padding=1)
@@ -188,10 +189,10 @@ class ExitFLow(nn.Module):
         self.conv = nn.Sequential(
             SeperableConv2d(1024, 1536, 3, padding=1),
             nn.BatchNorm2d(1536),
-            nn.ReLU(inplace=True),
+            act_layer(),
             SeperableConv2d(1536, 2048, 3, padding=1),
             nn.BatchNorm2d(2048),
-            nn.ReLU(inplace=True)
+            act_layer()
         )
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
@@ -208,11 +209,12 @@ class ExitFLow(nn.Module):
 
 class Xception(nn.Module):
 
-    def __init__(self, block, num_classes=100, **kwargs):
+    def __init__(self, block, num_classes=100, act_layer=None, **kwargs):
         super().__init__()
-        self.entry_flow = EntryFlow()
-        self.middel_flow = MiddleFlow(block)
-        self.exit_flow = ExitFLow()
+        act_layer = act_layer or partial(nn.ReLU, inplace=True)
+        self.entry_flow = EntryFlow(act_layer)
+        self.middel_flow = MiddleFlow(block, act_layer)
+        self.exit_flow = ExitFLow(act_layer)
 
         self.fc = nn.Linear(2048, num_classes)
 
@@ -226,6 +228,6 @@ class Xception(nn.Module):
         return x
 
 
-@register_model()
+@register_model("xception_c100")
 def xception(**kwargs):
     return Xception(MiddleFLowBlock, **kwargs)
