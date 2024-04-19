@@ -24,6 +24,7 @@ from models.cifar100 import (
     inceptionv3,
     xception,
     preactresnet,
+    alexnet,
 )
 # code from cutout
 from models import (
