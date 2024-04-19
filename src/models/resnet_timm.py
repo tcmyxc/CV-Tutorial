@@ -691,6 +691,12 @@ def resnet50d_dp(pretrained: bool = False, **kwargs) -> ResNet:
     return _create_resnet('resnet50d', pretrained, **dict(model_args, **kwargs))
 
 
+@register_model("resnet272_e5_dp")
+def resnet272d_dp(pretrained: bool = False, **kwargs) -> ResNet:
+    model_args = dict(block=Bottleneck, layers=[4, 29, 53, 4], avg_down=True, drop_path_rate=kwargs.pop("drop_path_rate", 0.1))
+    return _create_resnet('resnet272d', pretrained, **dict(model_args, **kwargs))
+
+
 @register_model("resnet50_e5_db")
 def resnet50d_db(pretrained: bool = False, **kwargs) -> ResNet:
     """Constructs a ResNet-50-D model.
