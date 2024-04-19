@@ -65,14 +65,15 @@ class FeedForward(nn.Module):
 
 
 class MBConv(nn.Module):
-    def __init__(self, inp, oup, image_size, downsample=False, expansion=4):
+    def __init__(self, inp, oup, image_size, downsample=False, expansion=4, first_stride=2):
         super().__init__()
         self.downsample = downsample
         stride = 1 if self.downsample == False else 2
+        stride = 1 if first_stride == 1 else stride
         hidden_dim = int(inp * expansion)
 
         if self.downsample:
-            self.pool = nn.MaxPool2d(3, 2, 1)
+            self.pool = nn.MaxPool2d(3, 2, 1) if first_stride == 2 else nn.Identity()
             self.proj = nn.Conv2d(inp, oup, 1, 1, 0, bias=False)
 
         if expansion == 1:
@@ -169,7 +170,7 @@ class Attention(nn.Module):
 
 
 class Transformer(nn.Module):
-    def __init__(self, inp, oup, image_size, heads=8, dim_head=32, downsample=False, dropout=0.):
+    def __init__(self, inp, oup, image_size, heads=8, dim_head=32, downsample=False, dropout=0., first_stride=2):
         super().__init__()
         hidden_dim = int(inp * 4)
 
@@ -177,8 +178,8 @@ class Transformer(nn.Module):
         self.downsample = downsample
 
         if self.downsample:
-            self.pool1 = nn.MaxPool2d(3, 2, 1)
-            self.pool2 = nn.MaxPool2d(3, 2, 1)
+            self.pool1 = nn.MaxPool2d(3, 2, 1) if first_stride == 2 else nn.Identity()
+            self.pool2 = nn.MaxPool2d(3, 2, 1) if first_stride == 2 else nn.Identity()
             self.proj = nn.Conv2d(inp, oup, 1, 1, 0, bias=False)
 
         self.attn = Attention(inp, oup, image_size, heads, dim_head, dropout)
@@ -207,23 +208,23 @@ class Transformer(nn.Module):
 
 class CoAtNet(nn.Module):
     def __init__(self, image_size, in_channels, num_blocks, channels, num_classes=1000,
-                 block_types=['C', 'C', 'T', 'T']):
+                 block_types=['C', 'C', 'C', 'T']):
         super().__init__()
         ih, iw = image_size
         block = {'C': MBConv, 'T': Transformer}
 
-        self.s0 = self._make_layer(
-            conv_3x3_bn, in_channels, channels[0], num_blocks[0], (ih // 2, iw // 2))
-        self.s1 = self._make_layer(
-            block[block_types[0]], channels[0], channels[1], num_blocks[1], (ih // 4, iw // 4))
-        self.s2 = self._make_layer(
-            block[block_types[1]], channels[1], channels[2], num_blocks[2], (ih // 8, iw // 8))
-        self.s3 = self._make_layer(
-            block[block_types[2]], channels[2], channels[3], num_blocks[3], (ih // 16, iw // 16))
-        self.s4 = self._make_layer(
-            block[block_types[3]], channels[3], channels[4], num_blocks[4], (ih // 32, iw // 32))
+        # self.s0 = self._make_layer(conv_3x3_bn, in_channels, channels[0], num_blocks[0], (ih // 2, iw // 2))
+        self.s0 = nn.Sequential(
+            nn.Conv2d(3, channels[0], kernel_size=3, stride=1, padding=1, bias=False),
+            nn.BatchNorm2d(channels[0]),
+            nn.ReLU(inplace=True),
+        )
+        self.s1 = self._make_layer(block[block_types[0]], channels[0], channels[1], num_blocks[1], (ih, iw), first_stride=1)
+        self.s2 = self._make_layer(block[block_types[1]], channels[1], channels[2], num_blocks[2], (ih // 2, iw // 2))
+        self.s3 = self._make_layer(block[block_types[2]], channels[2], channels[3], num_blocks[3], (ih // 4, iw // 4))
+        self.s4 = self._make_layer(block[block_types[3]], channels[3], channels[4], num_blocks[4], (ih // 4, iw // 4), first_stride=1)
 
-        self.pool = nn.AvgPool2d(ih // 32, 1)
+        self.pool = nn.AdaptiveAvgPool2d(1)
         self.fc = nn.Linear(channels[-1], num_classes, bias=False)
 
     def forward(self, x):
@@ -237,44 +238,45 @@ class CoAtNet(nn.Module):
         x = self.fc(x)
         return x
 
-    def _make_layer(self, block, inp, oup, depth, image_size):
+    def _make_layer(self, block, inp, oup, depth, image_size, first_stride=2):
         layers = nn.ModuleList([])
         for i in range(depth):
             if i == 0:
-                layers.append(block(inp, oup, image_size, downsample=True))
+                layers.append(block(inp, oup, image_size, downsample=True, first_stride=first_stride))
             else:
                 layers.append(block(oup, oup, image_size))
         return nn.Sequential(*layers)
 
 
-def coatnet_0():
+@register_model()
+def coatnet_0(**kwargs):
     num_blocks = [2, 2, 3, 5, 2]  # L
     channels = [64, 96, 192, 384, 768]  # D
-    return CoAtNet((224, 224), 3, num_blocks, channels, num_classes=1000)
+    return CoAtNet((32, 32), 3, num_blocks, channels, **kwargs)
 
 
-def coatnet_1():
+def coatnet_1(**kwargs):
     num_blocks = [2, 2, 6, 14, 2]  # L
     channels = [64, 96, 192, 384, 768]  # D
-    return CoAtNet((224, 224), 3, num_blocks, channels, num_classes=1000)
+    return CoAtNet((224, 224), 3, num_blocks, channels, **kwargs)
 
 
-def coatnet_2():
+def coatnet_2(**kwargs):
     num_blocks = [2, 2, 6, 14, 2]  # L
     channels = [128, 128, 256, 512, 1026]  # D
-    return CoAtNet((224, 224), 3, num_blocks, channels, num_classes=1000)
+    return CoAtNet((224, 224), 3, num_blocks, channels, **kwargs)
 
 
-def coatnet_3():
+def coatnet_3(**kwargs):
     num_blocks = [2, 2, 6, 14, 2]  # L
     channels = [192, 192, 384, 768, 1536]  # D
-    return CoAtNet((224, 224), 3, num_blocks, channels, num_classes=1000)
+    return CoAtNet((224, 224), 3, num_blocks, channels, **kwargs)
 
 
-def coatnet_4():
+def coatnet_4(**kwargs):
     num_blocks = [2, 2, 12, 28, 2]  # L
     channels = [192, 192, 384, 768, 1536]  # D
-    return CoAtNet((224, 224), 3, num_blocks, channels, num_classes=1000)
+    return CoAtNet((224, 224), 3, num_blocks, channels, **kwargs)
 
 
 def count_parameters(model):
