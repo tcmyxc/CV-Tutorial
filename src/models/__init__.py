@@ -23,6 +23,7 @@ from models.cifar100 import (
     googlenet,
     inceptionv3,
     xception,
+    preactresnet,
 )
 # code from cutout
 from models import (
@@ -76,10 +77,8 @@ def load_model(args, num_classes=10, **kwargs):
         # TODO
     elif args.model_lib == "cifar100":
         print('\n[INFO] act_layer:', args.act_layer)
-        # TODO: `act_layer` param current only for resnet
-        model_name = args.model + "_c100"
-        if model_name in list_models():
-            model = get_model(model_name, num_classes=num_classes, **kwargs)
+        if args.model in list_models():
+            model = get_model(args.model, num_classes=num_classes, act_layer=act_layer)
     elif args.model_lib == "qt":
         if args.model in list_models():
             model = get_model(args.model, num_classes=num_classes)
