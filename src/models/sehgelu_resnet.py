@@ -4,7 +4,7 @@ ref: https://github.com/moskomule/senet.pytorch/blob/master/senet/baseline.py
 
 import torch.nn as nn
 from torchvision.models import ResNet
-from layers import SequecialHGELU
+from layers import SequecialHGELUV2 as SequecialHGELU
 from ._api import register_model
 
 

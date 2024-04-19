@@ -30,7 +30,7 @@ class HGELU(nn.Module):
 
 class SequecialHGELU(nn.Module):
     """
-    串行实现版本
+    串行实现版本，包含 ReLU层
     """
     def __init__(self, inplace: bool = True):
         super().__init__()
@@ -44,3 +44,19 @@ class SequecialHGELU(nn.Module):
 
         out = x + weight * x
         return self.relu(out)
+
+
+class SequecialHGELUV2(nn.Module):
+    """
+    串行实现版本，不包含 ReLU层
+    """
+    def __init__(self, inplace: bool = True):
+        super().__init__()
+        self.inplace = inplace
+
+    def forward(self, x):
+        p_out = 0.5 * (1 + torch.erf(x / math.sqrt(2)))  # 概率
+        # 残差学习
+        weight = torch.where(p_out < 0.5, p_out, 1 - p_out)
+
+        return weight * x
