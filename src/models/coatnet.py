@@ -219,6 +219,7 @@ class CoAtNet(nn.Module):
             nn.BatchNorm2d(channels[0]),
             nn.ReLU(inplace=True),
         )
+        # first_stride=1 代表图片不进行下采样
         self.s1 = self._make_layer(block[block_types[0]], channels[0], channels[1], num_blocks[1], (ih, iw), first_stride=1)
         self.s2 = self._make_layer(block[block_types[1]], channels[1], channels[2], num_blocks[2], (ih // 2, iw // 2))
         self.s3 = self._make_layer(block[block_types[2]], channels[2], channels[3], num_blocks[3], (ih // 4, iw // 4))
