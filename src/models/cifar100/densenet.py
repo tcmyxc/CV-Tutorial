@@ -10,6 +10,7 @@
 
 import torch
 import torch.nn as nn
+from functools import partial
 
 from models._api import register_model
 
@@ -21,11 +22,13 @@ from models._api import register_model
 # to reduce the number of input feature-maps, and thus to
 # improve computational efficiency."""
 class Bottleneck(nn.Module):
-    def __init__(self, in_channels, growth_rate):
+    def __init__(self, in_channels, growth_rate, act_layer=None,):
         super().__init__()
         # """In  our experiments, we let each 1×1 convolution
         # produce 4k feature-maps."""
         inner_channel = 4 * growth_rate
+
+        self.act_layer = act_layer or partial(nn.ReLU, inplace=True)
 
         # """We find this design especially effective for DenseNet and
         # we refer to our network with such a bottleneck layer, i.e.,
@@ -33,10 +36,10 @@ class Bottleneck(nn.Module):
         # as DenseNet-B."""
         self.bottle_neck = nn.Sequential(
             nn.BatchNorm2d(in_channels),
-            nn.ReLU(inplace=True),
+            act_layer(),
             nn.Conv2d(in_channels, inner_channel, kernel_size=1, bias=False),
             nn.BatchNorm2d(inner_channel),
-            nn.ReLU(inplace=True),
+            act_layer(),
             nn.Conv2d(inner_channel, growth_rate, kernel_size=3, padding=1, bias=False)
         )
 
@@ -67,9 +70,11 @@ class Transition(nn.Module):
 # B stands for bottleneck layer(BN-RELU-CONV(1x1)-BN-RELU-CONV(3x3))
 # C stands for compression factor(0<=theta<=1)
 class DenseNet(nn.Module):
-    def __init__(self, block, nblocks, growth_rate=12, reduction=0.5, num_classes=100, **kwargs):
+    def __init__(self, block, nblocks, growth_rate=12, reduction=0.5, num_classes=100, act_layer=None, **kwargs):
         super().__init__()
         self.growth_rate = growth_rate
+
+        self.act_layer = act_layer or partial(nn.ReLU, inplace=True)
 
         # """Before entering the first dense block, a convolution
         # with 16 (or twice the growth rate for DenseNet-BC)
@@ -100,7 +105,7 @@ class DenseNet(nn.Module):
                                  self._make_dense_layers(block, inner_channels, nblocks[len(nblocks) - 1]))
         inner_channels += growth_rate * nblocks[len(nblocks) - 1]
         self.features.add_module('bn', nn.BatchNorm2d(inner_channels))
-        self.features.add_module('relu', nn.ReLU(inplace=True))
+        self.features.add_module('act', act_layer())
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
 
@@ -117,12 +122,12 @@ class DenseNet(nn.Module):
     def _make_dense_layers(self, block, in_channels, nblocks):
         dense_block = nn.Sequential()
         for index in range(nblocks):
-            dense_block.add_module('bottle_neck_layer_{}'.format(index), block(in_channels, self.growth_rate))
+            dense_block.add_module('bottle_neck_layer_{}'.format(index), block(in_channels, self.growth_rate, act_layer=self.act_layer))
             in_channels += self.growth_rate
         return dense_block
 
 
-@register_model()
+@register_model("densenet121_c100")
 def densenet121(**kwargs):
     return DenseNet(Bottleneck, [6, 12, 24, 16], growth_rate=32, **kwargs)
 
