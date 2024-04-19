@@ -156,7 +156,7 @@ def main(args):
 
         # 实例化tensorboard
         tb_writer = SummaryWriter(args.output_dir)
-        print(f'[INFO] Start Tensorboard with "tensorboard --logdir={osp.abspath(args.output_dir)}\n"')
+        print(f'[INFO] Start Tensorboard with "tensorboard --logdir={osp.abspath(args.output_dir)}"\n')
 
     utils.init_distributed_mode(args)  # 初始化分布式环境
     print_args(args)
