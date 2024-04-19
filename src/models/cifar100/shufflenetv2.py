@@ -11,6 +11,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from functools import partial
 
 from models._api import register_model
 
@@ -44,8 +45,9 @@ def channel_shuffle(x, groups):
 
 class ShuffleUnit(nn.Module):
 
-    def __init__(self, in_channels, out_channels, stride):
+    def __init__(self, in_channels, out_channels, stride, act_layer=None):
         super().__init__()
+        act_layer = act_layer or partial(nn.ReLU, inplace=True)
 
         self.stride = stride
         self.in_channels = in_channels
@@ -55,12 +57,12 @@ class ShuffleUnit(nn.Module):
             self.residual = nn.Sequential(
                 nn.Conv2d(in_channels, in_channels, 1),
                 nn.BatchNorm2d(in_channels),
-                nn.ReLU(inplace=True),
+                act_layer(),
                 nn.Conv2d(in_channels, in_channels, 3, stride=stride, padding=1, groups=in_channels),
                 nn.BatchNorm2d(in_channels),
                 nn.Conv2d(in_channels, int(out_channels / 2), 1),
                 nn.BatchNorm2d(int(out_channels / 2)),
-                nn.ReLU(inplace=True)
+                act_layer()
             )
 
             self.shortcut = nn.Sequential(
@@ -68,7 +70,7 @@ class ShuffleUnit(nn.Module):
                 nn.BatchNorm2d(in_channels),
                 nn.Conv2d(in_channels, int(out_channels / 2), 1),
                 nn.BatchNorm2d(int(out_channels / 2)),
-                nn.ReLU(inplace=True)
+                act_layer()
             )
         else:
             self.shortcut = nn.Sequential()
@@ -77,12 +79,12 @@ class ShuffleUnit(nn.Module):
             self.residual = nn.Sequential(
                 nn.Conv2d(in_channels, in_channels, 1),
                 nn.BatchNorm2d(in_channels),
-                nn.ReLU(inplace=True),
+                act_layer(),
                 nn.Conv2d(in_channels, in_channels, 3, stride=stride, padding=1, groups=in_channels),
                 nn.BatchNorm2d(in_channels),
                 nn.Conv2d(in_channels, in_channels, 1),
                 nn.BatchNorm2d(in_channels),
-                nn.ReLU(inplace=True)
+                act_layer()
             )
 
     def forward(self, x):
@@ -103,8 +105,9 @@ class ShuffleUnit(nn.Module):
 
 class ShuffleNetV2(nn.Module):
 
-    def __init__(self, ratio=1, num_classes=100, **kwargs):
+    def __init__(self, ratio=1, num_classes=100, act_layer=None, **kwargs):
         super().__init__()
+        act_layer = act_layer or partial(nn.ReLU, inplace=True)
         if ratio == 0.5:
             out_channels = [48, 96, 192, 1024]
         elif ratio == 1:
@@ -121,13 +124,13 @@ class ShuffleNetV2(nn.Module):
             nn.BatchNorm2d(24)
         )
 
-        self.stage2 = self._make_stage(24, out_channels[0], 3)
-        self.stage3 = self._make_stage(out_channels[0], out_channels[1], 7)
-        self.stage4 = self._make_stage(out_channels[1], out_channels[2], 3)
+        self.stage2 = self._make_stage(24, out_channels[0], 3, act_layer)
+        self.stage3 = self._make_stage(out_channels[0], out_channels[1], 7, act_layer)
+        self.stage4 = self._make_stage(out_channels[1], out_channels[2], 3, act_layer)
         self.conv5 = nn.Sequential(
             nn.Conv2d(out_channels[2], out_channels[3], 1),
             nn.BatchNorm2d(out_channels[3]),
-            nn.ReLU(inplace=True)
+            act_layer()
         )
 
         self.fc = nn.Linear(out_channels[3], num_classes)
@@ -144,17 +147,17 @@ class ShuffleNetV2(nn.Module):
 
         return x
 
-    def _make_stage(self, in_channels, out_channels, repeat):
+    def _make_stage(self, in_channels, out_channels, repeat, act_layer):
         layers = []
-        layers.append(ShuffleUnit(in_channels, out_channels, 2))
+        layers.append(ShuffleUnit(in_channels, out_channels, 2, act_layer=act_layer))
 
         while repeat:
-            layers.append(ShuffleUnit(out_channels, out_channels, 1))
+            layers.append(ShuffleUnit(out_channels, out_channels, 1, act_layer=act_layer))
             repeat -= 1
 
         return nn.Sequential(*layers)
 
 
-@register_model()
+@register_model("shufflenetv2_c100")
 def shufflenetv2(**kwargs):
     return ShuffleNetV2(**kwargs)
