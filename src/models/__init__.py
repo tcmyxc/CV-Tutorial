@@ -24,7 +24,6 @@ from models.cifar100 import (
     densenet,
     googlenet,
     inceptionv3,
-    inceptionv4,
     xception,
 )
 # code from cutout
