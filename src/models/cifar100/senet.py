@@ -10,6 +10,7 @@
 
 import torch.nn as nn
 import torch.nn.functional as F
+from functools import partial
 
 from models._api import register_model
 
@@ -17,17 +18,19 @@ from models._api import register_model
 class BasicResidualSEBlock(nn.Module):
     expansion = 1
 
-    def __init__(self, in_channels, out_channels, stride, r=16):
+    def __init__(self, in_channels, out_channels, stride, r=16, act_layer=None,):
         super().__init__()
+
+        self.act_layer = act_layer or partial(nn.ReLU, inplace=True)
 
         self.residual = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, 3, stride=stride, padding=1),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True),
+            act_layer(),
 
             nn.Conv2d(out_channels, out_channels * self.expansion, 3, padding=1),
             nn.BatchNorm2d(out_channels * self.expansion),
-            nn.ReLU(inplace=True)
+            act_layer()
         )
 
         self.shortcut = nn.Sequential()
@@ -40,7 +43,7 @@ class BasicResidualSEBlock(nn.Module):
         self.squeeze = nn.AdaptiveAvgPool2d(1)
         self.excitation = nn.Sequential(
             nn.Linear(out_channels * self.expansion, out_channels * self.expansion // r),
-            nn.ReLU(inplace=True),
+            act_layer(),
             nn.Linear(out_channels * self.expansion // r, out_channels * self.expansion),
             nn.Sigmoid()
         )
@@ -56,33 +59,35 @@ class BasicResidualSEBlock(nn.Module):
 
         x = residual * excitation.expand_as(residual) + shortcut
 
-        return F.relu(x)
+        return self.act_layer()(x)
 
 
 class BottleneckResidualSEBlock(nn.Module):
     expansion = 4
 
-    def __init__(self, in_channels, out_channels, stride, r=16):
+    def __init__(self, in_channels, out_channels, stride, r=16, act_layer=None,):
         super().__init__()
+
+        self.act_layer = act_layer or partial(nn.ReLU, inplace=True)
 
         self.residual = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, 1),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True),
+            act_layer(),
 
             nn.Conv2d(out_channels, out_channels, 3, stride=stride, padding=1),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True),
+            act_layer(),
 
             nn.Conv2d(out_channels, out_channels * self.expansion, 1),
             nn.BatchNorm2d(out_channels * self.expansion),
-            nn.ReLU(inplace=True)
+            act_layer()
         )
 
         self.squeeze = nn.AdaptiveAvgPool2d(1)
         self.excitation = nn.Sequential(
             nn.Linear(out_channels * self.expansion, out_channels * self.expansion // r),
-            nn.ReLU(inplace=True),
+            act_layer(),
             nn.Linear(out_channels * self.expansion // r, out_channels * self.expansion),
             nn.Sigmoid()
         )
@@ -105,20 +110,23 @@ class BottleneckResidualSEBlock(nn.Module):
 
         x = residual * excitation.expand_as(residual) + shortcut
 
-        return F.relu(x)
+        return self.act_layer()(x)
 
 
 class SEResNet(nn.Module):
 
-    def __init__(self, block, block_num, num_classes=100, **kwargs):
+    def __init__(self, block, block_num, num_classes=100, act_layer=None, **kwargs):
         super().__init__()
 
         self.in_channels = 64
 
+        act_layer = act_layer or partial(nn.ReLU, inplace=True)
+        self.act_layer = act_layer
+
         self.pre = nn.Sequential(
             nn.Conv2d(3, 64, 3, padding=1),
             nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True)
+            act_layer()
         )
 
         self.stage1 = self._make_stage(block, block_num[0], 64, 1)
@@ -145,11 +153,11 @@ class SEResNet(nn.Module):
 
     def _make_stage(self, block, num, out_channels, stride):
         layers = []
-        layers.append(block(self.in_channels, out_channels, stride))
+        layers.append(block(self.in_channels, out_channels, stride, act_layer=self.act_layer))
         self.in_channels = out_channels * block.expansion
 
         while num - 1:
-            layers.append(block(self.in_channels, out_channels, 1))
+            layers.append(block(self.in_channels, out_channels, 1, act_layer=self.act_layer))
             num -= 1
 
         return nn.Sequential(*layers)
@@ -163,7 +171,7 @@ def seresnet34():
     return SEResNet(BasicResidualSEBlock, [3, 4, 6, 3])
 
 
-@register_model()
+@register_model("seresnet50_c100")
 def seresnet50(**kwargs):
     return SEResNet(BottleneckResidualSEBlock, [3, 4, 6, 3], **kwargs)
 
