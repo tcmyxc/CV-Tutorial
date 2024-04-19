@@ -59,6 +59,7 @@ from models import(
     convnext,
     resnet_timm,
     coatnet,
+    se_resnet,
 )
 # act layers
 from layers import get_act_layer
