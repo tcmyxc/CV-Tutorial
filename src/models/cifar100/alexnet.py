@@ -11,7 +11,7 @@ class AlexNet(nn.Module):
     def __init__(self, num_classes: int = 1000, act_layer = partial(nn.ReLU, inplace=True)) -> None:
         super(AlexNet, self).__init__()
         self.features = nn.Sequential(
-            nn.Conv2d(3, 64, kernel_size=3, padding=1),
+            nn.Conv2d(3, 64, kernel_size=3, stride=2, padding=1),
             act_layer(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Conv2d(64, 192, kernel_size=3, padding=1),
@@ -25,9 +25,10 @@ class AlexNet(nn.Module):
             act_layer(),
             nn.MaxPool2d(kernel_size=2, stride=2),
         )
+        self.avgpool = nn.AdaptiveAvgPool2d((6, 6))
         self.classifier = nn.Sequential(
             nn.Dropout(),
-            nn.Linear(256 * 4 * 4, 4096),
+            nn.Linear(256 * 6 * 6, 4096),
             act_layer(),
             nn.Dropout(),
             nn.Linear(4096, 4096),
@@ -37,6 +38,7 @@ class AlexNet(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.features(x)
+        x = self.avgpool(x)
         x = torch.flatten(x, 1)
         x = self.classifier(x)
         return x
