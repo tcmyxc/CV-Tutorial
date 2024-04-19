@@ -10,30 +10,32 @@
 
 import torch
 import torch.nn as nn
+from functools import partial
 
 from models._api import register_model
 
 
 class Fire(nn.Module):
 
-    def __init__(self, in_channel, out_channel, squzee_channel):
+    def __init__(self, in_channel, out_channel, squzee_channel, act_layer=None,):
         super().__init__()
+        act_layer = act_layer or partial(nn.ReLU, inplace=True)
         self.squeeze = nn.Sequential(
             nn.Conv2d(in_channel, squzee_channel, 1),
             nn.BatchNorm2d(squzee_channel),
-            nn.ReLU(inplace=True)
+            act_layer()
         )
 
         self.expand_1x1 = nn.Sequential(
             nn.Conv2d(squzee_channel, int(out_channel / 2), 1),
             nn.BatchNorm2d(int(out_channel / 2)),
-            nn.ReLU(inplace=True)
+            act_layer()
         )
 
         self.expand_3x3 = nn.Sequential(
             nn.Conv2d(squzee_channel, int(out_channel / 2), 3, padding=1),
             nn.BatchNorm2d(int(out_channel / 2)),
-            nn.ReLU(inplace=True)
+            act_layer()
         )
 
     def forward(self, x):
@@ -49,23 +51,24 @@ class Fire(nn.Module):
 class SqueezeNet(nn.Module):
     """mobile net with simple bypass"""
 
-    def __init__(self, num_classes=100, **kwargs):
+    def __init__(self, num_classes=100, act_layer=None, **kwargs):
         super().__init__()
+        act_layer = act_layer or partial(nn.ReLU, inplace=True)
         self.stem = nn.Sequential(
             nn.Conv2d(3, 96, 3, padding=1),
             nn.BatchNorm2d(96),
-            nn.ReLU(inplace=True),
+            act_layer(),
             nn.MaxPool2d(2, 2)
         )
 
-        self.fire2 = Fire(96, 128, 16)
-        self.fire3 = Fire(128, 128, 16)
-        self.fire4 = Fire(128, 256, 32)
-        self.fire5 = Fire(256, 256, 32)
-        self.fire6 = Fire(256, 384, 48)
-        self.fire7 = Fire(384, 384, 48)
-        self.fire8 = Fire(384, 512, 64)
-        self.fire9 = Fire(512, 512, 64)
+        self.fire2 = Fire(96, 128, 16, act_layer)
+        self.fire3 = Fire(128, 128, 16, act_layer)
+        self.fire4 = Fire(128, 256, 32, act_layer)
+        self.fire5 = Fire(256, 256, 32, act_layer)
+        self.fire6 = Fire(256, 384, 48, act_layer)
+        self.fire7 = Fire(384, 384, 48, act_layer)
+        self.fire8 = Fire(384, 512, 64, act_layer)
+        self.fire9 = Fire(512, 512, 64, act_layer)
 
         self.conv10 = nn.Conv2d(512, num_classes, 1)
         self.avg = nn.AdaptiveAvgPool2d(1)
@@ -94,6 +97,6 @@ class SqueezeNet(nn.Module):
         return x
 
 
-@register_model()
+@register_model("squeezenet_c100")
 def squeezenet(**kwargs):
     return SqueezeNet(**kwargs)
