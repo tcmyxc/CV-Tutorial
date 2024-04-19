@@ -9,7 +9,7 @@
 """
 
 import torch.nn as nn
-import torch.nn.functional as F
+from functools import partial
 
 from models._api import register_model
 
@@ -31,8 +31,10 @@ BASEWIDTH = 64
 
 class ResNextBottleNeckC(nn.Module):
 
-    def __init__(self, in_channels, out_channels, stride):
+    def __init__(self, in_channels, out_channels, stride, act_layer=None,):
         super().__init__()
+        
+        self.act_layer = act_layer or partial(nn.ReLU, inplace=True)
 
         C = CARDINALITY  # How many groups a feature map was splitted into
 
@@ -44,10 +46,10 @@ class ResNextBottleNeckC(nn.Module):
         self.split_transforms = nn.Sequential(
             nn.Conv2d(in_channels, C * D, kernel_size=1, groups=C, bias=False),
             nn.BatchNorm2d(C * D),
-            nn.ReLU(inplace=True),
+            act_layer(),
             nn.Conv2d(C * D, C * D, kernel_size=3, stride=stride, groups=C, padding=1, bias=False),
             nn.BatchNorm2d(C * D),
-            nn.ReLU(inplace=True),
+            act_layer(),
             nn.Conv2d(C * D, out_channels * 4, kernel_size=1, bias=False),
             nn.BatchNorm2d(out_channels * 4),
         )
@@ -61,19 +63,22 @@ class ResNextBottleNeckC(nn.Module):
             )
 
     def forward(self, x):
-        return F.relu(self.split_transforms(x) + self.shortcut(x))
+        return self.act_layer()(self.split_transforms(x) + self.shortcut(x))
 
 
 class ResNext(nn.Module):
 
-    def __init__(self, block, num_blocks, num_classes=100, **kwargs):
+    def __init__(self, block, num_blocks, num_classes=100, act_layer=None, **kwargs):
         super().__init__()
         self.in_channels = 64
+
+        act_layer = act_layer or partial(nn.ReLU, inplace=True)
+        self.act_layer = act_layer
 
         self.conv1 = nn.Sequential(
             nn.Conv2d(3, 64, 3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True)
+            act_layer()
         )
 
         self.conv2 = self._make_layer(block, num_blocks[0], 64, 1)
@@ -108,13 +113,13 @@ class ResNext(nn.Module):
         strides = [stride] + [1] * (num_block - 1)
         layers = []
         for stride in strides:
-            layers.append(block(self.in_channels, out_channels, stride))
+            layers.append(block(self.in_channels, out_channels, stride, act_layer=self.act_layer))
             self.in_channels = out_channels * 4
 
         return nn.Sequential(*layers)
 
 
-@register_model()
+@register_model("resnext50_c100")
 def resnext50(**kwargs):
     """ return a resnext50(c32x4d) network
     """
