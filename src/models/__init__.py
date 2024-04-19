@@ -20,7 +20,6 @@ from models.cifar100 import (
     wideresidual,
     shufflenet,
     shufflenetv2,
-    mobilenetv2,
     densenet,
     googlenet,
     inceptionv3,
