@@ -58,6 +58,7 @@ from models import(
     pyramidnet,
     convnext,
     resnet_timm,
+    coatnet,
 )
 # act layers
 from layers import get_act_layer
