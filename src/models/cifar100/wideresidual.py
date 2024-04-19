@@ -45,7 +45,7 @@ class WideBasic(nn.Module):
 
 
 class WideResNet(nn.Module):
-    def __init__(self, block, depth=50, widen_factor=1, num_classes=100, act_layer=None, **kwargs):
+    def __init__(self, block=WideBasic, depth=50, widen_factor=1, num_classes=100, act_layer=None, **kwargs):
         super().__init__()
         act_layer = act_layer or partial(nn.ReLU, inplace=True)
 
@@ -101,8 +101,28 @@ class WideResNet(nn.Module):
         return nn.Sequential(*layers)
 
 
-# Table 9: Best WRN performance over various datasets, single run results.
-@register_model('WRN40_10_c100')
-def wideresnet(**kwargs):
-    net = WideResNet(WideBasic, depth=40, widen_factor=10, **kwargs)
+@register_model("WRN40_10_c100")
+def wide_resnet40_10(**kwargs):
+    """
+    for cifar10/cifar100
+    """
+    net = WideResNet(depth=40, widen_factor=10, dropRate=0.3, **kwargs)
     return net
+
+
+@register_model("WRN_28_10_c100")
+def wide_resnet28_10(**kwargs):
+    """
+    for cifar10/cifar100
+    """
+    net = WideResNet(depth=28, widen_factor=10, dropRate=0.3, **kwargs)
+    return net
+
+@register_model("WRN_16_8_c100")
+def wide_resnet16_8(**kwargs):
+    """
+    for svhn
+    """
+    net = WideResNet(depth=16, widen_factor=8,dropRate=0.4, **kwargs)
+    return net
+
