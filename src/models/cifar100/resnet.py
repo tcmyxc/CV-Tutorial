@@ -156,7 +156,7 @@ def resnet34():
     return ResNet(BasicBlock, [3, 4, 6, 3])
 
 
-@register_model()
+@register_model("resnet50_c100")
 def resnet50(**kwargs):
     """ return a ResNet 50 object
     """
