@@ -18,7 +18,6 @@ from models.cifar100 import (
     senet,
     squeezenet,
     wideresidual,
-    shufflenet,
     shufflenetv2,
     densenet,
     googlenet,
