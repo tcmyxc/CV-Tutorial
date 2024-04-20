@@ -135,10 +135,12 @@ class CifarSEBasicBlock(nn.Module):
         self.bn2 = nn.BatchNorm2d(planes)
         self.se = SELayer(planes, reduction)
         if inplanes != planes:
-            self.downsample = nn.Sequential(nn.Conv2d(inplanes, planes, kernel_size=1, stride=stride, bias=False),
-                                            nn.BatchNorm2d(planes))
+            self.downsample = nn.Sequential(
+                nn.Conv2d(inplanes, planes, kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm2d(planes)
+            )
         else:
-            self.downsample = lambda x: x
+            self.downsample = nn.Identity()
         self.stride = stride
 
     def forward(self, x):
