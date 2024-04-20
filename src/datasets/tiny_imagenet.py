@@ -14,7 +14,7 @@ _TINY_MEAN = [0.480, 0.448, 0.398]
 _TINY_STD = [0.277, 0.269, 0.282]
 
 train_transform = transforms.Compose([
-    transforms.RandomCrop(64, padding=4),
+    transforms.RandomCrop(64, padding=8),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     transforms.Normalize(_TINY_MEAN, _TINY_STD)
