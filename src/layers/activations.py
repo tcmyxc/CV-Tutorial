@@ -80,9 +80,13 @@ class SequecialHGELUV3(nn.Module):
         # 计算标准差
         std = torch.exp(0.5 * self.log_var)
         # 归一化
-        x = (x - self.mu.reshape(1, -1, 1, 1)) / (std.reshape(1, -1, 1, 1) + self.eps)
+        x_dim = x.ndim
+        if x_dim == 2:
+            norm_out = (x - self.mu) / (std + self.eps)
+        elif x_dim == 4:
+            norm_out = (x - self.mu.reshape(1, -1, 1, 1)) / (std.reshape(1, -1, 1, 1) + self.eps)
         # 计算概率
-        p_out = 0.5 * (1 + torch.erf(x / math.sqrt(2)))
+        p_out = 0.5 * (1 + torch.erf(norm_out / math.sqrt(2)))
         # 残差学习
         weight = torch.where(p_out < 0.5, p_out, 1 - p_out)
 
