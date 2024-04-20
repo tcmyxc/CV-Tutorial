@@ -7,11 +7,12 @@ https://github.com/facebook/fb.resnet.torch/blob/master/models/resnet.lua
 
 import torch.nn as nn
 
+from ._api import register_model
+
 
 def conv3x3(in_planes, out_planes, stride=1):
     "3x3 convolution with padding"
-    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
-                     padding=1, bias=False)
+    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False)
 
 
 class BasicBlock(nn.Module):
@@ -23,10 +24,12 @@ class BasicBlock(nn.Module):
         self.conv2 = conv3x3(planes, planes)
         self.bn2 = nn.BatchNorm2d(planes)
         if inplanes != planes:
-            self.downsample = nn.Sequential(nn.Conv2d(inplanes, planes, kernel_size=1, stride=stride, bias=False),
-                                            nn.BatchNorm2d(planes))
+            self.downsample = nn.Sequential(
+                nn.Conv2d(inplanes, planes, kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm2d(planes)
+            )
         else:
-            self.downsample = lambda x: x
+            self.downsample = nn.Identity()
         self.stride = stride
 
     def forward(self, x):
@@ -50,7 +53,7 @@ class PreActBasicBlock(BasicBlock):
         if inplanes != planes:
             self.downsample = nn.Sequential(nn.Conv2d(inplanes, planes, kernel_size=1, stride=stride, bias=False))
         else:
-            self.downsample = lambda x: x
+            self.downsample = nn.Identity()
         self.bn1 = nn.BatchNorm2d(inplanes)
 
     def forward(self, x):
@@ -140,21 +143,25 @@ class PreActResNet(ResNet):
         return x
 
 
+@register_model("resnet20_mos")
 def resnet20(**kwargs):
     model = ResNet(BasicBlock, 3, **kwargs)
     return model
 
 
+@register_model("resnet32_mos")
 def resnet32(**kwargs):
     model = ResNet(BasicBlock, 5, **kwargs)
     return model
 
 
+@register_model("resnet56_mos")
 def resnet56(**kwargs):
     model = ResNet(BasicBlock, 9, **kwargs)
     return model
 
 
+@register_model("resnet110_mos")
 def resnet110(**kwargs):
     model = ResNet(BasicBlock, 18, **kwargs)
     return model
