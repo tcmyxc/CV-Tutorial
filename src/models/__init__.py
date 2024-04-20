@@ -60,6 +60,7 @@ from models import(
     coatnet,
     se_resnet,
     sehgelu_resnet,
+    sehgelu_resnet_v3,
     resnet_cifar_mos,
 )
 # act layers
