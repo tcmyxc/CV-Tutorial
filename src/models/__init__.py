@@ -60,6 +60,7 @@ from models import(
     coatnet,
     se_resnet,
     sehgelu_resnet,
+    resnet_cifar_mos,
 )
 # act layers
 from layers import get_act_layer
