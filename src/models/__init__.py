@@ -61,6 +61,7 @@ from models import(
     se_resnet,
     sehgelu_resnet,
     sehgelu_resnet_v3,
+    sehgelu_resnet_v4,
     resnet_cifar_mos,
 )
 # act layers
