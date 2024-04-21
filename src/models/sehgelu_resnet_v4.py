@@ -34,7 +34,7 @@ class SEBasicBlock(nn.Module):
 
         out = self.conv2(out)
         out = self.bn2(out)
-        out = self.se(out)
+        out += self.se(out)
 
         if self.downsample is not None:
             residual = self.downsample(x)
@@ -74,7 +74,7 @@ class SEBottleneck(nn.Module):
 
         out = self.conv3(out)
         out = self.bn3(out)
-        out = self.se(out)
+        out += self.se(out)
 
         if self.downsample is not None:
             residual = self.downsample(x)
@@ -151,7 +151,7 @@ class CifarSEBasicBlock(nn.Module):
 
         out = self.conv2(out)
         out = self.bn2(out)
-        out = self.se(out)
+        out += self.se(out)
 
         out += residual
         out = self.relu(out)
