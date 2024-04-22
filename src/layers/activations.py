@@ -104,16 +104,20 @@ class SequecialHGELUV4(nn.Module):
             self,
             num_features: int,
             eps: float = 1e-5,
+            reduction: int = 1,
     ) -> None:
         super().__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
-        self.fc1 = nn.Linear(num_features, num_features // 4)
-        self.fc21 = nn.Linear(num_features // 4, num_features)
-        self.fc22 = nn.Linear(num_features // 4, num_features)
+        # self.fc1 = nn.Linear(num_features, num_features // reduction)
+        self.fc21 = nn.Linear(num_features // reduction, num_features)
+        self.fc22 = nn.Linear(num_features // reduction, num_features)
         self.eps = eps
 
     def encode(self, x):
-        h1 = F.relu(self.fc1(x))
+        # h1 = F.relu(self.fc1(x))
+        # h1 = F.sigmoid(self.fc1(x))
+        # h1 = self.fc1(x)
+        h1 = x
         return self.fc21(h1), self.fc22(h1)
 
     def forward(self, x):
@@ -132,4 +136,4 @@ class SequecialHGELUV4(nn.Module):
         # 残差学习
         weight = torch.where(p_out < 0.5, p_out, 1 - p_out)
 
-        return weight * x * 2
+        return weight * x
