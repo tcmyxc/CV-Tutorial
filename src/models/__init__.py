@@ -63,9 +63,14 @@ from models import(
     sehgelu_resnet_v3,
     sehgelu_resnet_v4,
     resnet_cifar_mos,
+    simplenetv1,
 )
 # act layers
 from layers import get_act_layer
+
+
+# 支持自定义激活函数的模型列表
+ACT_MODEL_LIST = ["simplenetv1"]
 
 
 def load_model(args, num_classes=10, **kwargs):
@@ -87,7 +92,7 @@ def load_model(args, num_classes=10, **kwargs):
         if args.model in list_models():
             model = get_model(args.model, num_classes=num_classes)
     elif args.model_lib == "custom":
-        if "E5" in args.model:
+        if "E5" in args.model or args.model in ACT_MODEL_LIST:
             print("[INFO] act_layer:", args.act_layer)
             model = get_model(args.model, num_classes=num_classes, act_layer=act_layer)
         elif args.model in list_models():
