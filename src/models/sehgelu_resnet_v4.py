@@ -182,7 +182,8 @@ class CifarSEResNet(nn.Module):
                 nn.init.constant_(m.bias, 0)
             elif isinstance(m, nn.Linear):
                 nn.init.normal_(m.weight, 0, 0.01)
-                nn.init.zeros_(m.bias)
+                if m.bias is not None:
+                    nn.init.zeros_(m.bias)
 
     def _make_layer(self, block, planes, blocks, stride):
         strides = [stride] + [1] * (blocks - 1)
