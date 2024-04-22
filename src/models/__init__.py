@@ -64,13 +64,14 @@ from models import(
     sehgelu_resnet_v4,
     resnet_cifar_mos,
     simplenetv1,
+    efficientnetv2,
 )
 # act layers
 from layers import get_act_layer
 
 
 # 支持自定义激活函数的模型列表
-ACT_MODEL_LIST = ["simplenetv1"]
+ACT_MODEL_LIST = ["simplenetv1", "effnetv2_s"]
 
 
 def load_model(args, num_classes=10, **kwargs):
