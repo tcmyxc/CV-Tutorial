@@ -104,21 +104,15 @@ class SequecialHGELUV4(nn.Module):
             self,
             num_features: int,
             eps: float = 1e-5,
-            reduction: int = 1,
     ) -> None:
         super().__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
-        # self.fc1 = nn.Linear(num_features, num_features // reduction)
-        self.fc21 = nn.Linear(num_features // reduction, num_features)
-        self.fc22 = nn.Linear(num_features // reduction, num_features)
+        self.fc21 = nn.Linear(num_features, num_features)
+        self.fc22 = nn.Linear(num_features, num_features)
         self.eps = eps
 
     def encode(self, x):
-        # h1 = F.relu(self.fc1(x))
-        # h1 = F.sigmoid(self.fc1(x))
-        # h1 = self.fc1(x)
-        h1 = x
-        return self.fc21(h1), self.fc22(h1)
+        return self.fc21(x), self.fc22(x)
 
     def forward(self, x):
         mu, log_var = self.encode(torch.flatten(self.avg_pool(x), 1))
@@ -131,6 +125,38 @@ class SequecialHGELUV4(nn.Module):
         elif x_dim == 4:
             b, c, _, _ = x.size()
             norm_out = (x - mu.reshape(b, c, 1, 1)) / (std.reshape(b, c, 1, 1) + self.eps)
+        # 计算概率
+        p_out = 0.5 * (1 + torch.erf(norm_out / math.sqrt(2)))
+        # 残差学习
+        weight = torch.where(p_out < 0.5, p_out, 1 - p_out)
+
+        return weight * x
+
+
+class SequecialHGELUV5(nn.Module):
+    """
+    串行实现版本，分组卷积实现
+    """
+    def __init__(
+            self,
+            num_features: int,
+            eps: float = 1e-5,
+    ) -> None:
+        super().__init__()
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.fc1 = nn.Conv2d(num_features, num_features, kernel_size=1, stride=1, groups=num_features)
+        self.fc2 = nn.Conv2d(num_features, num_features, kernel_size=1, stride=1, groups=num_features)
+        self.eps = eps
+
+    def encode(self, x):
+        return self.fc1(x), self.fc2(x)
+
+    def forward(self, x):
+        mu, log_var = self.encode(self.avg_pool(x))
+        # 计算标准差
+        std = torch.exp(0.5 * log_var)
+        # 归一化
+        norm_out = (x - mu) / (std + self.eps)
         # 计算概率
         p_out = 0.5 * (1 + torch.erf(norm_out / math.sqrt(2)))
         # 残差学习
