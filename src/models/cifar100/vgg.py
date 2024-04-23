@@ -28,9 +28,9 @@ class VGG(nn.Module):
         act_layer = act_layer or partial(nn.ReLU, inplace=True)
 
         self.features = features
-
+        self.avgpool = nn.AdaptiveAvgPool2d((7, 7))
         self.classifier = nn.Sequential(
-            nn.Linear(512, 4096),
+            nn.Linear(512 * 49, 4096),
             act_layer(),
             nn.Dropout(),
             nn.Linear(4096, 4096),
@@ -41,6 +41,7 @@ class VGG(nn.Module):
 
     def forward(self, x):
         output = self.features(x)
+        output = self.avgpool(output)
         output = output.view(output.size()[0], -1)
         output = self.classifier(output)
 
