@@ -9,6 +9,20 @@ import torch.nn as nn
 from torch.nn import functional as F
 
 
+def gelu(x, inplace: bool = False):
+    p_out = 0.5 * (1 + torch.erf(x / math.sqrt(2)))  # 概率
+    return p_out * x
+
+
+class GELU(nn.Module):
+    def __init__(self, inplace: bool = False):
+        super().__init__()
+        self.inplace = inplace
+
+    def forward(self, x):
+        return gelu(x)
+
+
 def hgelu(x, inplace: bool = False):
     # 保证大于0的部分导数不会为0
     p_out = 0.5 * (1 + torch.erf(x / math.sqrt(2)))  # 概率
