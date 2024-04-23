@@ -175,8 +175,8 @@ class SequecialHGELUV6(nn.Module):
             eps: float = 1e-5,
     ) -> None:
         super().__init__()
-        self.fc1 = nn.Conv2d(num_features, num_features, kernel_size=3, stride=1, padding=1, groups=num_features)
-        self.fc2 = nn.Conv2d(num_features, num_features, kernel_size=3, stride=1, padding=1, groups=num_features)
+        self.fc1 = nn.Conv2d(num_features, num_features, kernel_size=1, stride=1, padding=0, groups=num_features)
+        self.fc2 = nn.Conv2d(num_features, num_features, kernel_size=1, stride=1, padding=0, groups=num_features)
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.eps = eps
 
