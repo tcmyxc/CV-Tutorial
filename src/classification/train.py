@@ -367,9 +367,11 @@ def main(args):
             # save best checkpoint
             if is_best:
                 print(f"\n[FEAT] best acc: {best_acc1:.2f}\n")
-                utils.save_on_master(checkpoint, osp.join(args.output_dir, "best_model.pth"))
+                if not args.unsave_weight:
+                    utils.save_on_master(checkpoint, osp.join(args.output_dir, "best_model.pth"))
 
-            utils.save_on_master(checkpoint, osp.join(args.output_dir, "checkpoint.pth"))
+            if not args.unsave_weight:
+                utils.save_on_master(checkpoint, osp.join(args.output_dir, "checkpoint.pth"))
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
@@ -390,14 +392,14 @@ def get_args_parser(add_help=True):
     parser.add_argument("--data_name", default="cifar10", type=str, help="dataset name")
 
     # 模型架构
-    parser.add_argument("--model", default="resnet18", type=str, help="model name")
+    parser.add_argument("--model", default="resnet32", type=str, help="model name")
     parser.add_argument("--model_lib", default="custom", type=str, choices=["custom", "torch", "timm", "cifar100", "qt"], help="model library")
 
     parser.add_argument("-b", "--batch-size", default=128, type=int, help="images per gpu, the total batch size is $NGPU x batch_size")
     parser.add_argument("--epochs", default=200, type=int, metavar="N", help="number of total epochs to run")
     parser.add_argument("-j", "--workers", default=4, type=int, metavar="N", help="number of data loading workers (default: 4)")
     parser.add_argument("--opt", default="sgd", type=str, help="optimizer")
-    parser.add_argument("--lr", default=0.01, type=float, help="initial learning rate")
+    parser.add_argument("--lr", default=0.1, type=float, help="initial learning rate")
     parser.add_argument("--momentum", default=0.9, type=float, metavar="M", help="momentum")
     parser.add_argument("--wd", "--weight-decay", default=5e-4, type=float, metavar="W",
                         help="weight decay (default: 5e-4)", dest="weight_decay")
@@ -474,6 +476,9 @@ def get_args_parser(add_help=True):
     # drop path and drop block
     parser.add_argument('--drop_path', type=float, default=None, help='Drop path rate (default: None)')
     parser.add_argument('--drop_block', type=float, default=None, help='Drop block rate (default: None)')
+
+    # 是否保存权重
+    parser.add_argument("--unsave_weight", action="store_true", help="whether to save model weights")
 
     return parser.parse_args()
 
