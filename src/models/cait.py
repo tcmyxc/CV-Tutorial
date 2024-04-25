@@ -255,6 +255,30 @@ def cait_xxs24_32(**kwargs):
     return model
 
 
+@register_model()
+def cait_xxs24_64(**kwargs):
+    model = Cait(img_size=64,
+                 patch_size=8,
+                 embed_dim=192,
+                 depth=24,
+                 num_heads=4,
+                 init_values=1e-5,
+                 **kwargs)
+    return model
+
+
+@register_model()
+def cait_xxs24_96(**kwargs):
+    model = Cait(img_size=96,
+                 patch_size=12,
+                 embed_dim=192,
+                 depth=24,
+                 num_heads=4,
+                 init_values=1e-5,
+                 **kwargs)
+    return model
+
+
 def cait_xxs24_224(**kwargs):
     """ https://dl.fbaipublicfiles.com/deit/XXS24_224.pth """
     model = Cait(img_size=224,
