@@ -70,6 +70,7 @@ from models import(
 # torchvision
 from models.torchvision import (
     alexnet_torch,
+    vgg_torch,
 )
 
 # act layers
