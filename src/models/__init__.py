@@ -74,6 +74,7 @@ from models.torchvision import (
     shufflenetv2_torch,
     squeezenet_torch,
     googlenet_torch,
+    efficientnet_torch,
 )
 
 # act layers
