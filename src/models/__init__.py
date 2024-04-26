@@ -99,8 +99,9 @@ def load_model(args, num_classes=10, **kwargs):
         if args.model in list_models():
             model = get_model(args.model, num_classes=num_classes, act_layer=act_layer)
     elif args.model_lib == "qt":
+        print('\n[INFO] act_layer:', args.act_layer)
         if args.model in list_models():
-            model = get_model(args.model, num_classes=num_classes)
+            model = get_model(args.model, num_classes=num_classes, act_layer=act_layer)
     elif args.model_lib == "custom":
         if "E5" in args.model or args.model in ACT_MODEL_LIST:
             print("[INFO] act_layer:", args.act_layer)

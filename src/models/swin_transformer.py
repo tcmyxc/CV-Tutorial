@@ -393,7 +393,7 @@ class BasicLayer(nn.Module):
 
     def __init__(self, dim, input_resolution, depth, num_heads, window_size,
                  mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0.,
-                 drop_path=0., norm_layer=nn.LayerNorm, downsample=None,
+                 drop_path=0., norm_layer=nn.LayerNorm, act_layer=nn.GELU, downsample=None,
                  fused_window_process=False):
 
         super().__init__()
@@ -411,6 +411,7 @@ class BasicLayer(nn.Module):
                                  drop=drop, attn_drop=attn_drop,
                                  drop_path=drop_path[i] if isinstance(drop_path, list) else drop_path,
                                  norm_layer=norm_layer,
+                                 act_layer=act_layer,
                                  fused_window_process=fused_window_process)
             for i in range(depth)])
 
@@ -516,7 +517,7 @@ class SwinTransformer(nn.Module):
                  window_size=7, mlp_ratio=4., qkv_bias=True, qk_scale=None,
                  drop_rate=0., attn_drop_rate=0., drop_path_rate=0.1,
                  norm_layer=nn.LayerNorm, ape=False, patch_norm=True,
-                 fused_window_process=False, **kwargs):
+                 fused_window_process=False, act_layer=nn.GELU, **kwargs):
         super().__init__()
 
         self.num_classes = num_classes
@@ -559,6 +560,7 @@ class SwinTransformer(nn.Module):
                                drop=drop_rate, attn_drop=attn_drop_rate,
                                drop_path=dpr[sum(depths[:i_layer]):sum(depths[:i_layer + 1])],
                                norm_layer=norm_layer,
+                               act_layer=act_layer,
                                downsample=PatchMerging if (i_layer < self.num_layers - 1) else None,
                                fused_window_process=fused_window_process)
             self.layers.append(layer)
@@ -614,6 +616,36 @@ def swin_tiny_patch4_window4_32(**kwargs):
     """
     model = SwinTransformer(img_size=32,
                             patch_size=4,
+                            window_size=4,
+                            embed_dim=96,
+                            depths=(2, 2, 6, 2),
+                            num_heads=(3, 6, 12, 24),
+                            **kwargs)
+    return model
+
+
+@register_model()
+def swin_tiny_patch8_window4_64(**kwargs):
+    """
+    https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_tiny_patch4_window7_224.pth
+    """
+    model = SwinTransformer(img_size=64,
+                            patch_size=8,
+                            window_size=4,
+                            embed_dim=96,
+                            depths=(2, 2, 6, 2),
+                            num_heads=(3, 6, 12, 24),
+                            **kwargs)
+    return model
+
+
+@register_model()
+def swin_tiny_patch12_window4_96(**kwargs):
+    """
+    https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_tiny_patch4_window7_224.pth
+    """
+    model = SwinTransformer(img_size=96,
+                            patch_size=12,
                             window_size=4,
                             embed_dim=96,
                             depths=(2, 2, 6, 2),

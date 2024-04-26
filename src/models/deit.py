@@ -84,6 +84,30 @@ def deit_tiny_patch4_32(**kwargs):
     return model
 
 
+@register_model()
+def deit_tiny_patch8_64(**kwargs):
+    model = VisionTransformerDistilled(img_size=64,
+                                       in_chans=3,
+                                       patch_size=8,
+                                       embed_dim=192,
+                                       depth=12,
+                                       num_heads=3,
+                                       **kwargs)
+    return model
+
+
+@register_model()
+def deit_tiny_patch12_96(**kwargs):
+    model = VisionTransformerDistilled(img_size=96,
+                                       in_chans=3,
+                                       patch_size=12,
+                                       embed_dim=192,
+                                       depth=12,
+                                       num_heads=3,
+                                       **kwargs)
+    return model
+
+
 def deit_tiny_patch16_224(**kwargs):
     model = VisionTransformerDistilled(img_size=224,
                                        in_chans=3,
