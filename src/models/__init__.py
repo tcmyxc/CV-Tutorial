@@ -71,6 +71,7 @@ from models import(
 from models.torchvision import (
     alexnet_torch,
     vgg_torch,
+    shufflenetv2_torch,
 )
 
 # act layers
