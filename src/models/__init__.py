@@ -70,6 +70,11 @@ from models import(
 # torchvision
 from models.torchvision import (
     alexnet_torch,
+    vgg_torch,
+    shufflenetv2_torch,
+    squeezenet_torch,
+    googlenet_torch,
+    efficientnet_torch,
 )
 
 # act layers
