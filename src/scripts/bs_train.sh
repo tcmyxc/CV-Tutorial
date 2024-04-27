@@ -54,7 +54,7 @@
 # done
 
 
-for epoch in '600' '500' '400' '300'
+for epoch in '500' '400' '300'
 do
     CUDA_VISIBLE_DEVICES="0,1,2,3" torchrun --nproc_per_node=4  --master_port="29429" classification/train.py \
         --model resnet50_e5_dp \

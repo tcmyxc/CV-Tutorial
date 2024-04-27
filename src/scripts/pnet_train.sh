@@ -34,7 +34,7 @@ do
         --batch-size 32 \
         --lr 0.1 \
         --lr-scheduler cosineannealinglr \
-        --epochs 600 \
+        --epochs 800 \
         --lr-warmup-epochs 5 \
         --lr-min 1e-6 \
         --wd 5e-5 \
@@ -50,4 +50,3 @@ do
 
     wait
 done
-

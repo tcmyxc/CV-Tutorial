@@ -1,9 +1,9 @@
 #!/bin/bash
 
-for model in 'resnet272_e5_dp'
+for dp in '0.6' '0.4' '0.3' '0.2' '0'
 do
     CUDA_VISIBLE_DEVICES="0,1,2,3" torchrun --nproc_per_node=4  --master_port="26419" classification/train.py \
-        --model ${model} \
+        --model resnet272_e5_dp \
         --model_lib custom \
         --data_name cifar100 \
         --batch-size 32 \
@@ -17,7 +17,7 @@ do
         --random_erase 0.5 \
         --mixup-alpha 1 \
         --cutmix-alpha 1 \
-        --drop_path 0.1 \
+        --drop_path ${dp} \
         --act_layer relu \
         --loss_type ce \
         --print-freq 100 \
