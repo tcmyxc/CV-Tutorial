@@ -8,10 +8,10 @@ print(list_models())
 
 parser = argparse.ArgumentParser()
 # 模型架构
-parser.add_argument("--model", default="resnet50dp_timm", type=str, help="model name")
+parser.add_argument("--model", default="alexnet_torch", type=str, help="model name")
 parser.add_argument(
     "--model_lib",
-    default="custom", type=str,
+    default="torch", type=str,
     choices=["torch", "timm", "cifar100", "qt"],
     help="model library",
 )
@@ -25,7 +25,7 @@ args = parser.parse_args()
 
 model = load_model(args, num_classes=100)
 print(model)
-input_size = (3, 32, 32)
+input_size = (3, 96, 96)
 summary(model, input_size=input_size, batch_size=8, device="cpu")
 
 # with torch.cuda.device(0):

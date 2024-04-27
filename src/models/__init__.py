@@ -66,6 +66,17 @@ from models import(
     simplenetv1,
     efficientnetv2,
 )
+
+# torchvision
+from models.torchvision import (
+    alexnet_torch,
+    vgg_torch,
+    shufflenetv2_torch,
+    squeezenet_torch,
+    googlenet_torch,
+    efficientnet_torch,
+)
+
 # act layers
 from layers import get_act_layer
 
@@ -81,7 +92,10 @@ def load_model(args, num_classes=10, **kwargs):
 
     model = None
     if args.model_lib == "torch":
-        model = torchvision.models.get_model(args.model, weights=args.weights, num_classes=num_classes)
+        # model = torchvision.models.get_model(args.model, weights=args.weights, num_classes=num_classes)
+        print('\n[INFO] act_layer:', args.act_layer)
+        if args.model in list_models():
+            model = get_model(args.model, num_classes=num_classes, act_layer=act_layer)
     elif args.model_lib == "timm":
         pass
         # TODO
