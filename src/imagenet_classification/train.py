@@ -23,9 +23,18 @@ if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 
 from models import load_model
-from utils.misc import print_args
 
 best_acc1 = 0
+
+
+def print_args(args):
+    """优雅地打印命令行参数"""
+
+    print("")  # 和上方日志空一行
+    print("-" * 20, "args", "-" * 20)
+    for k, v in args.to_dict().items():
+        print(f"{k}: {v}")
+    print("-" * 18, "args end", "-" * 18, flush=True)
 
 
 def train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, args, model_ema=None, scaler=None):
