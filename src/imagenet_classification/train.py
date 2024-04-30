@@ -32,7 +32,7 @@ def print_args(args):
 
     print("")  # 和上方日志空一行
     print("-" * 20, "args", "-" * 20)
-    for k, v in args.to_dict().items():
+    for k, v in vars(args).items():
         print(f"{k}: {v}")
     print("-" * 18, "args end", "-" * 18, flush=True)
 
