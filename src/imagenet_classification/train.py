@@ -23,6 +23,7 @@ if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 
 from models import load_model
+from utils.misc import print_args
 
 best_acc1 = 0
 
@@ -206,7 +207,7 @@ def main(args):
         utils.mkdir(args.output_dir)
 
     utils.init_distributed_mode(args)
-    print(args)
+    print_args(args)
 
     device = torch.device(args.device)
 
