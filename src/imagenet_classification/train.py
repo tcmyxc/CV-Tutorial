@@ -24,6 +24,8 @@ if str(ROOT) not in sys.path:
 
 from models import load_model
 
+best_acc1 = 0
+
 
 def train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, args, model_ema=None, scaler=None):
     model.train()
@@ -198,6 +200,8 @@ def load_data(traindir, valdir, args):
 
 
 def main(args):
+    global best_acc1
+
     if args.output_dir:
         utils.mkdir(args.output_dir)
 
@@ -367,9 +371,15 @@ def main(args):
             train_sampler.set_epoch(epoch)
         train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, args, model_ema, scaler)
         lr_scheduler.step()
-        evaluate(model, criterion, data_loader_test, device=device)
+        acc1 = evaluate(model, criterion, data_loader_test, device=device)
         if model_ema:
-            evaluate(model_ema, criterion, data_loader_test, device=device, log_suffix="EMA")
+            acc1 = evaluate(model_ema, criterion, data_loader_test, device=device, log_suffix="EMA")
+
+        # remember best acc@1 and save checkpoint
+        is_best = acc1 > best_acc1
+        best_acc1 = max(acc1, best_acc1)
+        if is_best:
+            print(f"\n[FEAT] best acc: {best_acc1:.2f}\n")
         if args.output_dir:
             checkpoint = {
                 "model": model_without_ddp.state_dict(),
