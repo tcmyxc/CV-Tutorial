@@ -15,6 +15,7 @@ from datasets import (
     cifar100_big,
     cinic10,
     imagenet32,
+    imagenet64,
 )
 
 
@@ -37,6 +38,8 @@ def get_dataset(data_name, data_root, **kwargs):
         return cinic10.get_cinic10(data_root, **kwargs)
     elif data_name == "imagenet32":
         return imagenet32.get_imagenet32(data_root, **kwargs)
+    elif data_name == "imagenet64":
+        return imagenet64.get_imagenet64(data_root, **kwargs)
     else:
         raise ValueError(f'Not implement dataset: {data_name}')
 
