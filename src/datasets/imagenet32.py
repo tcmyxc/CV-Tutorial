@@ -32,9 +32,11 @@ def get_imagenet32(data_root="~/datasets", random_erase_prob=0.0, auto_augment=F
     if auto_augment:
         pass
 
-    train_transform.transforms.append(
-        transforms.PILToTensor(),
-        transforms.ConvertImageDtype(torch.float),
+    train_transform.transforms.extend(
+        [
+            transforms.PILToTensor(),
+            transforms.ConvertImageDtype(torch.float),
+        ]
     )
 
     if cutout:
