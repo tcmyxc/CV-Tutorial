@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 
-from torchvision import transforms, datasets
+import torch
+import torchvision
+from torchvision import transforms
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[1]  # root directory of current file
@@ -14,7 +16,8 @@ imagenet_mean=(0.485, 0.456, 0.406)
 imagenet_std=(0.229, 0.224, 0.225)
 
 val_transform = transforms.Compose([
-    transforms.ToTensor(),
+    transforms.PILToTensor(),
+    transforms.ConvertImageDtype(torch.float),
     transforms.Normalize(imagenet_mean, imagenet_std),
 ])
 
@@ -29,7 +32,10 @@ def get_imagenet64(data_root="~/datasets", random_erase_prob=0.0, auto_augment=F
     if auto_augment:
         pass
 
-    train_transform.transforms.append(transforms.ToTensor())
+    train_transform.transforms.append(
+        transforms.PILToTensor(),
+        transforms.ConvertImageDtype(torch.float),
+    )
 
     if cutout:
         pass
@@ -42,9 +48,9 @@ def get_imagenet64(data_root="~/datasets", random_erase_prob=0.0, auto_augment=F
     print(f"[INFO] train transform: {train_transform}")
     
     # train, 1281167
-    train_dataset = datasets.ImageFolder(data_root + '/ImageNet64/box', transform=train_transform)
+    train_dataset = torchvision.datasets.ImageFolder(data_root + '/ImageNet64/box', transform=train_transform)
     # val, 50000
-    test_dataset = datasets.ImageFolder(data_root + '/ImageNet64/val/box', transform=val_transform)
+    test_dataset = torchvision.datasets.ImageFolder(data_root + '/ImageNet64/val/box', transform=val_transform)
 
     return train_dataset, test_dataset, num_classes
 
