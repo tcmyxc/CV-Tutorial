@@ -5,6 +5,12 @@ import torch
 import torchvision
 from torchvision import transforms
 
+from PIL import PngImagePlugin
+
+MaximumDecompressedSize = 1024
+MegaByte = 2**20
+PngImagePlugin.MAX_TEXT_CHUNK = MaximumDecompressedSize * MegaByte
+
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[1]  # root directory of current file
 if str(ROOT) not in sys.path:
