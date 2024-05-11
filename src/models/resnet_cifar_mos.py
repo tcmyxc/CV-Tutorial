@@ -6,6 +6,7 @@ https://github.com/facebook/fb.resnet.torch/blob/master/models/resnet.lua
 """
 
 import torch.nn as nn
+from functools import partial
 
 from ._api import register_model
 
@@ -16,14 +17,14 @@ def conv3x3(in_planes, out_planes, stride=1):
 
 
 class BasicBlock(nn.Module):
-    def __init__(self, inplanes, planes, stride=1):
-        super(BasicBlock, self).__init__()
+    def __init__(self, inplanes, planes, stride=1, act_layer=None):
+        super().__init__()
         self.conv1 = conv3x3(inplanes, planes, stride)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.relu1 = nn.ReLU(inplace=True)
+        self.relu1 = act_layer()
         self.conv2 = conv3x3(planes, planes)
         self.bn2 = nn.BatchNorm2d(planes)
-        self.relu2 = nn.ReLU(inplace=True)
+        self.relu2 = act_layer()
         if inplanes != planes:
             self.downsample = nn.Sequential(
                 nn.Conv2d(inplanes, planes, kernel_size=1, stride=stride, bias=False),
@@ -49,8 +50,12 @@ class BasicBlock(nn.Module):
 
 
 class PreActBasicBlock(BasicBlock):
-    def __init__(self, inplanes, planes, stride):
-        super(PreActBasicBlock, self).__init__(inplanes, planes, stride)
+    def __init__(self, inplanes, planes, stride, act_layer=None):
+        if act_layer is None:
+            act_layer = partial(nn.ReLU, inplace=True)
+        self._act_layer = act_layer
+
+        super().__init__(inplanes, planes, stride, act_layer)
         if inplanes != planes:
             self.downsample = nn.Sequential(nn.Conv2d(inplanes, planes, kernel_size=1, stride=stride, bias=False))
         else:
@@ -60,11 +65,11 @@ class PreActBasicBlock(BasicBlock):
     def forward(self, x):
         residual = self.downsample(x)
         out = self.bn1(x)
-        out = self.relu(out)
+        out = self.relu1(out)
         out = self.conv1(out)
 
         out = self.bn2(out)
-        out = self.relu(out)
+        out = self.relu2(out)
         out = self.conv2(out)
 
         out += residual
@@ -73,12 +78,16 @@ class PreActBasicBlock(BasicBlock):
 
 
 class ResNet(nn.Module):
-    def __init__(self, block, n_size, num_classes=10):
-        super(ResNet, self).__init__()
+    def __init__(self, block, n_size, num_classes=10, act_layer=None):
+        super().__init__()
+        if act_layer is None:
+            act_layer = partial(nn.ReLU, inplace=True)
+        self._act_layer = act_layer
+
         self.inplane = 16
         self.conv1 = nn.Conv2d(3, self.inplane, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(self.inplane)
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = act_layer()
         self.layer1 = self._make_layer(block, 16, blocks=n_size, stride=1)
         self.layer2 = self._make_layer(block, 32, blocks=n_size, stride=2)
         self.layer3 = self._make_layer(block, 64, blocks=n_size, stride=2)
@@ -96,11 +105,12 @@ class ResNet(nn.Module):
                 nn.init.constant_(m.bias, 0)
 
     def _make_layer(self, block, planes, blocks, stride):
+        act_layer = self._act_layer
 
         strides = [stride] + [1] * (blocks - 1)
         layers = []
         for stride in strides:
-            layers.append(block(self.inplane, planes, stride))
+            layers.append(block(self.inplane, planes, stride, act_layer))
             self.inplane = planes
 
         return nn.Sequential(*layers)
@@ -122,8 +132,12 @@ class ResNet(nn.Module):
 
 
 class PreActResNet(ResNet):
-    def __init__(self, block, n_size, num_classes=10):
-        super(PreActResNet, self).__init__(block, n_size, num_classes)
+    def __init__(self, block, n_size, num_classes=10, act_layer=None):
+        if act_layer is None:
+            act_layer = partial(nn.ReLU, inplace=True)
+        self._act_layer = act_layer
+
+        super().__init__(block, n_size, num_classes, act_layer)
 
         self.bn1 = nn.BatchNorm2d(self.inplane)
         self.initialize()

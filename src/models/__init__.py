@@ -82,7 +82,7 @@ from layers import get_act_layer
 
 
 # 支持自定义激活函数的模型列表
-ACT_MODEL_LIST = ["simplenetv1", "effnetv2_s"]
+ACT_MODEL_LIST = ["simplenetv1", "effnetv2_s", "resnet20_mos", "resnet32_mos"]
 
 
 def load_model(args, num_classes=10, **kwargs):
