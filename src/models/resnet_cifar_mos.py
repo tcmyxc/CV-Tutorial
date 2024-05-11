@@ -20,9 +20,10 @@ class BasicBlock(nn.Module):
         super(BasicBlock, self).__init__()
         self.conv1 = conv3x3(inplanes, planes, stride)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.relu = nn.ReLU(inplace=True)
+        self.relu1 = nn.ReLU(inplace=True)
         self.conv2 = conv3x3(planes, planes)
         self.bn2 = nn.BatchNorm2d(planes)
+        self.relu2 = nn.ReLU(inplace=True)
         if inplanes != planes:
             self.downsample = nn.Sequential(
                 nn.Conv2d(inplanes, planes, kernel_size=1, stride=stride, bias=False),
@@ -36,13 +37,13 @@ class BasicBlock(nn.Module):
         residual = self.downsample(x)
         out = self.conv1(x)
         out = self.bn1(out)
-        out = self.relu(out)
+        out = self.relu1(out)
 
         out = self.conv2(out)
         out = self.bn2(out)
 
         out += residual
-        out = self.relu(out)
+        out = self.relu2(out)
 
         return out
 
