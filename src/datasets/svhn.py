@@ -16,19 +16,31 @@ normalize = transforms.Normalize(
     std=[x / 255.0 for x in [50.1, 50.6, 50.8]]
 )
 
-train_transform = transforms.Compose([
-    SVHNPolicy(),
-    transforms.ToTensor(),
-    Cutout(n_holes=1, length=20), # (https://github.com/uoguelph-mlrg/Cutout/blob/master/util/cutout.py)
-    normalize,
-])
+# train_transform = transforms.Compose([
+#     SVHNPolicy(),
+#     transforms.ToTensor(),
+#     Cutout(n_holes=1, length=20), # (https://github.com/uoguelph-mlrg/Cutout/blob/master/util/cutout.py)
+#     normalize,
+# ])
 
 test_transform = transforms.Compose([transforms.ToTensor(), normalize])
 
 
-def get_svhn(data_root='data', use_extra=False, **kwargs):
+def get_svhn(data_root='data', use_extra=False, auto_augment=False, cutout=False, **kwargs):
     num_classes = 10
 
+    train_transform = transforms.Compose([])
+    if auto_augment:
+        train_transform.transforms.append(SVHNPolicy())
+    
+    train_transform.transforms.append(transforms.ToTensor())
+
+    if cutout:
+        train_transform.transforms.append(Cutout(n_holes=1, length=20))
+    
+    train_transform.transforms.append(normalize)
+    
+    print(f"[INFO] train transform: {train_transform}")
     train_dataset = datasets.SVHN(
         root=data_root,
         split='train',
