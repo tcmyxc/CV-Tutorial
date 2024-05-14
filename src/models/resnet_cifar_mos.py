@@ -158,6 +158,18 @@ class PreActResNet(ResNet):
         return x
 
 
+@register_model("resnet8_mos")
+def resnet8(**kwargs):
+    model = ResNet(BasicBlock, 1, **kwargs)
+    return model
+
+
+@register_model("resnet14_mos")
+def resnet14(**kwargs):
+    model = ResNet(BasicBlock, 2, **kwargs)
+    return model
+
+
 @register_model("resnet20_mos")
 def resnet20(**kwargs):
     model = ResNet(BasicBlock, 3, **kwargs)
