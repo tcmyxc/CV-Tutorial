@@ -34,7 +34,15 @@ def get_cifar100(data_root='data', random_erase_prob=0.0, auto_augment=False, cu
         auto_augment_policy = kwargs.pop('auto_augment_policy', None)
         if auto_augment_policy is not None:
             if auto_augment_policy == "ra":
-                train_transform.transforms.append(TAA.RandAugment(interpolation=InterpolationMode.BILINEAR))
+                # ra 论文中有多个，分别是(3,4), (3,5), (3,7), (3,9)
+                # 本人并未实际测试过这几个的 acc, 只是随便挑了一个
+                train_transform.transforms.append(
+                    TAA.RandAugment(
+                        num_ops=3,
+                        magnitude=5,
+                        interpolation=InterpolationMode.BILINEAR,
+                    )
+                )
             elif auto_augment_policy == "ta_wide":
                 train_transform.transforms.append(TAA.TrivialAugmentWide(interpolation=InterpolationMode.BILINEAR))
             elif auto_augment_policy == "augmix":
