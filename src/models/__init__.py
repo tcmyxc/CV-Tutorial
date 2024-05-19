@@ -85,7 +85,8 @@ from layers import get_act_layer
 ACT_MODEL_LIST = [
     "simplenetv1", 
     "effnetv2_s", 
-    "resnet20_mos", "resnet32_mos", "resnet14_mos", "resnet8_mos"
+    "resnet20_mos", "resnet32_mos", "resnet14_mos", "resnet8_mos",
+    'convnext_tiny', 'convnext_small', 'convnext_base', 'convnext_large', 'convnext_xlarge',
 ]
 
 

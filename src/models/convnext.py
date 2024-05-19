@@ -1,4 +1,6 @@
 # from https://github.com/facebookresearch/ConvNeXt/blob/main/models/convnext.py
+# modified by Wenxiang Xu
+#
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 
 # All rights reserved.
@@ -6,6 +8,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+from typing import List
 
 import torch
 import torch.nn as nn
@@ -25,12 +28,12 @@ class Block(nn.Module):
         drop_path (float): Stochastic depth rate. Default: 0.0
         layer_scale_init_value (float): Init value for Layer Scale. Default: 1e-6.
     """
-    def __init__(self, dim, drop_path=0., layer_scale_init_value=1e-6):
+    def __init__(self, dim, drop_path=0., layer_scale_init_value=1e-6, act_layer=nn.GELU):
         super().__init__()
         self.dwconv = nn.Conv2d(dim, dim, kernel_size=7, padding=3, groups=dim) # depthwise conv
         self.norm = LayerNorm(dim, eps=1e-6)
         self.pwconv1 = nn.Linear(dim, 4 * dim) # pointwise/1x1 convs, implemented with linear layers
-        self.act = nn.GELU()
+        self.act = act_layer()
         self.pwconv2 = nn.Linear(4 * dim, dim)
         self.gamma = nn.Parameter(layer_scale_init_value * torch.ones((dim)), 
                                     requires_grad=True) if layer_scale_init_value > 0 else None
@@ -67,8 +70,12 @@ class ConvNeXt(nn.Module):
         head_init_scale (float): Init scaling value for classifier weights and biases. Default: 1.
     """
     def __init__(self, in_chans=3, num_classes=1000, 
-                 depths=[3, 3, 9, 3], dims=[96, 192, 384, 768], drop_path_rate=0., 
-                 layer_scale_init_value=1e-6, head_init_scale=1.,
+                 depths: List[int] = [3, 3, 9, 3],
+                 dims: List[int] = [96, 192, 384, 768],
+                 drop_path_rate=0.,
+                 layer_scale_init_value=1e-6,
+                 head_init_scale=1.,
+                 act_layer = nn.GELU,
                  ):
         super().__init__()
 
@@ -91,7 +98,7 @@ class ConvNeXt(nn.Module):
         cur = 0
         for i in range(4):
             stage = nn.Sequential(
-                *[Block(dim=dims[i], drop_path=dp_rates[cur + j], 
+                *[Block(dim=dims[i], drop_path=dp_rates[cur + j], act_layer=act_layer,
                 layer_scale_init_value=layer_scale_init_value) for j in range(depths[i])]
             )
             self.stages.append(stage)
