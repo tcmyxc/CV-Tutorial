@@ -233,3 +233,9 @@ def sehgelu_resnet32(**kwargs):
 def sehgelu_resnet56(**kwargs):
     model = CifarSEResNet(CifarSEBasicBlock, 9, **kwargs)
     return model
+
+
+@register_model("sehgelu_resnet110_v4")
+def sehgelu_resnet110(**kwargs):
+    model = CifarSEResNet(CifarSEBasicBlock, 18, **kwargs)
+    return model

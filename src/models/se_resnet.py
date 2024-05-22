@@ -228,3 +228,9 @@ def se_resnet32(**kwargs):
 def se_resnet56(**kwargs):
     model = CifarSEResNet(CifarSEBasicBlock, 9, **kwargs)
     return model
+
+
+@register_model()
+def se_resnet110(**kwargs):
+    model = CifarSEResNet(CifarSEBasicBlock, 18, **kwargs)
+    return model
