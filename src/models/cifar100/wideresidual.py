@@ -123,6 +123,6 @@ def wide_resnet16_8(**kwargs):
     """
     for svhn
     """
-    net = WideResNet(depth=16, widen_factor=8, drop_rate=0.4, **kwargs)
+    net = WideResNet(depth=16, widen_factor=8, drop_rate=0.5, **kwargs)
     return net
 
