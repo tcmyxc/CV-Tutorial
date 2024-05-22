@@ -207,6 +207,12 @@ class CifarSEResNet(nn.Module):
 
 
 @register_model()
+def se_resnet14(**kwargs):
+    model = CifarSEResNet(CifarSEBasicBlock, 2, **kwargs)
+    return model
+
+
+@register_model()
 def se_resnet20(**kwargs):
     model = CifarSEResNet(CifarSEBasicBlock, 3, **kwargs)
     return model
