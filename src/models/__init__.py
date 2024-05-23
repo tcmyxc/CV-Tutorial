@@ -87,6 +87,7 @@ ACT_MODEL_LIST = [
     "effnetv2_s", 
     "resnet20_mos", "resnet32_mos", "resnet14_mos", "resnet8_mos",
     'convnext_tiny', 'convnext_small', 'convnext_base', 'convnext_large', 'convnext_xlarge',
+    'sehgelu_resnet14_v4', 'sehgelu_resnet20_v4', 'sehgelu_resnet32_v4', 'sehgelu_resnet56_v4', 'sehgelu_resnet110_v4',
 ]
 
 
