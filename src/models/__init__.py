@@ -25,6 +25,7 @@ from models.cifar100 import (
     xception,
     preactresnet,
     alexnet,
+    sehgelu_resnet,
 )
 # code from cutout
 from models import (
