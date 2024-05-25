@@ -161,7 +161,7 @@ class SequecialHGELUV4B(nn.Module):
         super().__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.fc1 = nn.Linear(num_features, num_features//r)
-        self.dropout = nn.Dropout(dropout_p)
+        self.dropout = nn.Dropout(dropout_p) if dropout_p > 0. else nn.Identity()
         self.fc21 = nn.Linear(num_features//r, num_features)
         self.fc22 = nn.Linear(num_features//r, num_features)
         self.eps = eps
