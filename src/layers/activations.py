@@ -156,16 +156,19 @@ class SequecialHGELUV4B(nn.Module):
             num_features: int,
             eps: float = 1e-5,
             r: int = 16,
+            dropout_p: float = 0.1,
     ) -> None:
         super().__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.fc1 = nn.Linear(num_features, num_features//r)
+        self.dropout = nn.Dropout(dropout_p)
         self.fc21 = nn.Linear(num_features//r, num_features)
         self.fc22 = nn.Linear(num_features//r, num_features)
         self.eps = eps
 
     def encode(self, x):
         x = self.fc1(x)
+        x = self.dropout(x)
         return self.fc21(x), self.fc22(x)
 
     def forward(self, x):
