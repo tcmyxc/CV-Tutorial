@@ -76,6 +76,8 @@ from models.torchvision import (
     squeezenet_torch,
     googlenet_torch,
     efficientnet_torch,
+    resnet_torchvision,
+    rcnet,
 )
 
 # act layers
@@ -89,6 +91,12 @@ ACT_MODEL_LIST = [
     "resnet20_mos", "resnet32_mos", "resnet14_mos", "resnet8_mos",
     'convnext_tiny', 'convnext_small', 'convnext_base', 'convnext_large', 'convnext_xlarge',
     'sehgelu_resnet14_v4', 'sehgelu_resnet20_v4', 'sehgelu_resnet32_v4', 'sehgelu_resnet56_v4', 'sehgelu_resnet110_v4',
+    'alexnet_torch',
+    'efficientnet_v2_s_torch',
+    'googlenet_torch',
+    'shufflenet_v2_x0_5_torch',
+    'squeezenet1_0_torch', 'squeezenet1_1_torch',
+    'vgg16_torch', 'vgg16_bn_torch',
 ]
 
 
@@ -99,10 +107,11 @@ def load_model(args, num_classes=10, **kwargs):
 
     model = None
     if args.model_lib == "torch":
-        # model = torchvision.models.get_model(args.model, weights=args.weights, num_classes=num_classes)
-        print('\n[INFO] act_layer:', args.act_layer)
-        if args.model in list_models():
+        if args.model in list_models() and args.model in ACT_MODEL_LIST:
+            print('\n[INFO] act_layer:', args.act_layer)
             model = get_model(args.model, num_classes=num_classes, act_layer=act_layer)
+        elif args.model in list_models():
+            model = get_model(args.model, num_classes=num_classes)
     elif args.model_lib == "timm":
         pass
         # TODO
