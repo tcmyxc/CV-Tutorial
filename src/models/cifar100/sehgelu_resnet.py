@@ -12,7 +12,9 @@ import torch.nn as nn
 from functools import partial
 
 from models._api import register_model
-from layers import SequecialHGELUV4
+from layers import SequecialHGELUV4B
+
+SequecialHGELUV4 = partial(SequecialHGELUV4B, r=16)
 
 
 class BasicBlock(nn.Module):

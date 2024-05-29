@@ -5,8 +5,10 @@ ref: https://github.com/moskomule/senet.pytorch
 import torch.nn as nn
 from functools import partial
 from torchvision.models import ResNet
-from layers import SequecialHGELUV4
+from layers import SequecialHGELUV4B
 from ._api import register_model
+
+SequecialHGELUV4 = partial(SequecialHGELUV4B, r=4)
 
 
 def conv3x3(in_planes, out_planes, stride=1):
