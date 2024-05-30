@@ -466,7 +466,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--lr-scheduler", default="steplr", type=str, help="the lr scheduler (default: steplr)")
     parser.add_argument("--lr-warmup-epochs", default=0, type=int, help="the number of epochs to warmup (default: 0)")
     parser.add_argument(
-        "--lr-warmup-method", default="constant", type=str, help="the warmup method (default: constant)"
+        "--lr-warmup-method", default="linear", type=str, help="the warmup method (default: linear)"
     )
     parser.add_argument("--lr-warmup-decay", default=0.01, type=float, help="the decay for lr")
     parser.add_argument("--lr-step-size", default=30, type=int, help="decrease lr every step-size epochs")
