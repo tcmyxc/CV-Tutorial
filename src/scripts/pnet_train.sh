@@ -12,7 +12,7 @@ do
         --epochs 1800 \
         --lr-warmup-epochs 5 \
         --lr-min 1e-6 \
-        --wd 5e-5 \
+        --wd 5e-4 \
         --auto_augment \
         --random_erase 0.5 \
         --mixup-alpha 1 \
