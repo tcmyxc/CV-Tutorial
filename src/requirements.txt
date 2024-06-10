@@ -1,9 +1,9 @@
 einops
 mmengine_lite==0.10.3
-numpy==1.24.3
-Pillow==10.2.0
-torch==1.13.1
+numpy>=1.24.3
+Pillow>=10.2.0
+torch>=1.13.1
 torchsummary==1.5.1
-torchvision==0.14.1
+torchvision>=0.14.1
 ptflops==0.7.2.2
 timm==0.9.16
