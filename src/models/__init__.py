@@ -52,6 +52,7 @@ from models import(
     resnet_e5,
     resnet_e6,
     resnet_e6_v2,
+    resnet_e7,
     resnet_e5_convnext,
     resnet_e5_trans,
     resnet_torch,
