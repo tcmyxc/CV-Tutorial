@@ -2,9 +2,9 @@
 
 for model in 'rcnet34'
 do
-    CUDA_VISIBLE_DEVICES="0,1" torchrun --nproc_per_node=2  --master_port="26935" imagenet_classification/train.py \
+    CUDA_VISIBLE_DEVICES="0" torchrun --nproc_per_node=1  --master_port="26935" imagenet_classification/train.py \
         --lr 0.1 \
-        --batch-size 128 \
+        --batch-size 256 \
         --model ${model} \
         --cache-dataset \
         --print-freq 100 \
