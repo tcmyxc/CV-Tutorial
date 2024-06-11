@@ -282,3 +282,13 @@ def rcnet34(**kwargs: Any) -> RCNet:
 @register_model("rcnet50")
 def rcnet50(**kwargs: Any) -> RCNet:
     return _rcnet(Bottleneck, [3, 4, 6, 3], **kwargs)
+
+
+@register_model("rcnet101")
+def rcnet101(**kwargs: Any) -> RCNet:
+    return _rcnet(Bottleneck, [3, 4, 23, 3], **kwargs)
+
+
+@register_model("rcnet152")
+def rcnet152(**kwargs: Any) -> RCNet:
+    return _rcnet(Bottleneck, [3, 8, 36, 3], **kwargs)
