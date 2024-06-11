@@ -271,11 +271,19 @@ def resnet18(**kwargs: Any) -> ResNet:
 
 @register_model("resnet34_torch")
 def resnet34(**kwargs: Any) -> ResNet:
-
     return _resnet(BasicBlock, [3, 4, 6, 3], **kwargs)
 
 
 @register_model("resnet50_torch")
 def resnet50(**kwargs: Any) -> ResNet:
-
     return _resnet(Bottleneck, [3, 4, 6, 3], **kwargs)
+
+
+@register_model("resnet101_torch")
+def resnet101(**kwargs: Any) -> ResNet:
+    return _resnet(Bottleneck, [3, 4, 23, 3], **kwargs)
+
+
+@register_model("resnet152_torch")
+def resnet152(**kwargs: Any) -> ResNet:
+    return _resnet(Bottleneck, [3, 8, 36, 3], **kwargs)
