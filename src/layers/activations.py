@@ -23,6 +23,37 @@ class GELU(nn.Module):
         return gelu(x)
 
 
+def gclu_tanh(x, inplace: bool = False):
+    p_out = 0.5 * (1 + torch.tanh(math.sqrt(2 / math.pi) * (x + 0.044715 * torch.pow(x, 3))))  # 概率
+    weight = torch.where(p_out < 0.5, p_out, 2 - p_out)
+    return weight * x
+
+
+class GCLUTanh(nn.Module):
+    def __init__(self, inplace: bool = False):
+        super().__init__()
+        self.inplace = inplace
+
+    def forward(self, x):
+        return gclu_tanh(x)
+
+
+def quick_gclu(x, inplace: bool = False):
+    # 使用cdf的近似形式计算概率
+    p_out = torch.sigmoid(1.702 * x)  # 概率
+    weight = torch.where(p_out < 0.5, p_out, 2 - p_out)
+    return weight * x
+
+
+class QuickGCLU(nn.Module):
+    def __init__(self, inplace: bool = False):
+        super().__init__()
+        self.inplace = inplace
+
+    def forward(self, x):
+        return quick_gclu(x)
+
+
 def hgelu(x, inplace: bool = False):
     # 保证大于0的部分导数不会为0
     p_out = 0.5 * (1 + torch.erf(x / math.sqrt(2)))  # 概率
