@@ -4,9 +4,9 @@
 
 for model in 'rcnet50'
 do
-    CUDA_VISIBLE_DEVICES="0,1" torchrun --nproc_per_node=2  --master_port="21975" imagenet_classification/train.py \
-        --lr 0.1 \
-        --batch-size 128 \
+    CUDA_VISIBLE_DEVICES="0" torchrun --nproc_per_node=1  --master_port="21975" imagenet_classification/train.py \
+        --lr 0.125 \
+        --batch-size 256 \
         --model ${model} \
         --print-freq 100 \
         --lr-scheduler cosineannealinglr \
