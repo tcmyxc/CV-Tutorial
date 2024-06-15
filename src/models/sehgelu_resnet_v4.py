@@ -216,30 +216,35 @@ class CifarSEResNet(nn.Module):
         return x
 
 
+@register_model("rescnet14")
 @register_model("sehgelu_resnet14_v4")
 def sehgelu_resnet14(**kwargs):
     model = CifarSEResNet(CifarSEBasicBlock, 2, **kwargs)
     return model
 
 
+@register_model("rescnet20")
 @register_model("sehgelu_resnet20_v4")
 def sehgelu_resnet20(**kwargs):
     model = CifarSEResNet(CifarSEBasicBlock, 3, **kwargs)
     return model
 
 
+@register_model("rescnet32")
 @register_model("sehgelu_resnet32_v4")
 def sehgelu_resnet32(**kwargs):
     model = CifarSEResNet(CifarSEBasicBlock, 5, **kwargs)
     return model
 
 
+@register_model("rescnet56")
 @register_model("sehgelu_resnet56_v4")
 def sehgelu_resnet56(**kwargs):
     model = CifarSEResNet(CifarSEBasicBlock, 9, **kwargs)
     return model
 
 
+@register_model("rescnet110")
 @register_model("sehgelu_resnet110_v4")
 def sehgelu_resnet110(**kwargs):
     model = CifarSEResNet(CifarSEBasicBlock, 18, **kwargs)
