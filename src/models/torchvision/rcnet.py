@@ -270,25 +270,30 @@ def _rcnet(
 
 
 @register_model("rcnet18")
+@register_model("rescnet18")
 def rcnet18(**kwargs: Any) -> RCNet:
     return _rcnet(BasicBlock, [2, 2, 2, 2], **kwargs)
 
 
 @register_model("rcnet34")
+@register_model("rescnet34")
 def rcnet34(**kwargs: Any) -> RCNet:
     return _rcnet(BasicBlock, [3, 4, 6, 3], **kwargs)
 
 
 @register_model("rcnet50")
+@register_model("rescnet50")
 def rcnet50(**kwargs: Any) -> RCNet:
     return _rcnet(Bottleneck, [3, 4, 6, 3], **kwargs)
 
 
 @register_model("rcnet101")
+@register_model("rescnet101")
 def rcnet101(**kwargs: Any) -> RCNet:
     return _rcnet(Bottleneck, [3, 4, 23, 3], **kwargs)
 
 
 @register_model("rcnet152")
+@register_model("rescnet152")
 def rcnet152(**kwargs: Any) -> RCNet:
     return _rcnet(Bottleneck, [3, 8, 36, 3], **kwargs)
