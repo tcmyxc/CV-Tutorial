@@ -287,3 +287,16 @@ def resnet101(**kwargs: Any) -> ResNet:
 @register_model("resnet152_torch")
 def resnet152(**kwargs: Any) -> ResNet:
     return _resnet(Bottleneck, [3, 8, 36, 3], **kwargs)
+
+
+@register_model("resnext50_torch")
+def resnext50_32x4d(**kwargs: Any):
+    kwargs["groups"] = 32
+    kwargs["width_per_group"] = 4
+    return _resnet(Bottleneck, [3, 4, 6, 3], **kwargs)
+
+
+@register_model("wide_resnet50_torch")
+def wide_resnet50_2(**kwargs: Any):
+    kwargs["width_per_group"] = 64 * 2
+    return _resnet(Bottleneck, [3, 4, 6, 3], **kwargs)

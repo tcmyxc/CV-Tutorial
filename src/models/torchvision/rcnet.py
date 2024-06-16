@@ -303,3 +303,18 @@ def rcnet101(**kwargs: Any) -> RCNet:
 @register_model("rescnet152")
 def rcnet152(**kwargs: Any) -> RCNet:
     return _rcnet(Bottleneck, [3, 8, 36, 3], reduction=32, **kwargs)
+
+
+@register_model("rcnext50")
+@register_model("rescnext50")
+def rescnext50_32x4d(**kwargs: Any):
+    kwargs["groups"] = 32
+    kwargs["width_per_group"] = 4
+    return _rcnet(Bottleneck, [3, 4, 6, 3], **kwargs)
+
+
+@register_model("wide_rcnet50")
+@register_model("wide_rescnet50")
+def wide_rescnet50_2(**kwargs: Any):
+    kwargs["width_per_group"] = 64 * 2
+    return _rcnet(Bottleneck, [3, 4, 6, 3], **kwargs)
