@@ -41,6 +41,7 @@ class BasicBlock(nn.Module):
         base_width: int = 64,
         dilation: int = 1,
         norm_layer: Optional[Callable[..., nn.Module]] = None,
+        reduction=16,
     ) -> None:
         super().__init__()
         if norm_layer is None:
@@ -55,7 +56,7 @@ class BasicBlock(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.conv2 = conv3x3(planes, planes)
         self.bn2 = norm_layer(planes)
-        self.rc_layer = RCLayer(planes)
+        self.rc_layer = RCLayer(planes, r=reduction)
         self.downsample = downsample
         self.stride = stride
 
@@ -98,6 +99,7 @@ class Bottleneck(nn.Module):
         base_width: int = 64,
         dilation: int = 1,
         norm_layer: Optional[Callable[..., nn.Module]] = None,
+        reduction=16,
     ) -> None:
         super().__init__()
         if norm_layer is None:
@@ -111,7 +113,7 @@ class Bottleneck(nn.Module):
         self.conv3 = conv1x1(width, planes * self.expansion)
         self.bn3 = norm_layer(planes * self.expansion)
         self.relu = nn.ReLU(inplace=True)
-        self.rc_layer = RCLayer(planes * self.expansion)
+        self.rc_layer = RCLayer(planes * self.expansion, r=reduction)
         self.downsample = downsample
         self.stride = stride
 
@@ -150,11 +152,13 @@ class RCNet(nn.Module):
         width_per_group: int = 64,
         replace_stride_with_dilation: Optional[List[bool]] = None,
         norm_layer: Optional[Callable[..., nn.Module]] = None,
+        reduction=16,
     ) -> None:
         super().__init__()
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
         self._norm_layer = norm_layer
+        self._reduction = reduction
 
         self.inplanes = 64
         self.dilation = 1
@@ -206,6 +210,7 @@ class RCNet(nn.Module):
         dilate: bool = False,
     ) -> nn.Sequential:
         norm_layer = self._norm_layer
+        reduction= self._reduction
         downsample = None
         previous_dilation = self.dilation
         if dilate:
@@ -220,7 +225,7 @@ class RCNet(nn.Module):
         layers = []
         layers.append(
             block(
-                self.inplanes, planes, stride, downsample, self.groups, self.base_width, previous_dilation, norm_layer
+                self.inplanes, planes, stride, downsample, self.groups, self.base_width, previous_dilation, norm_layer, reduction
             )
         )
         self.inplanes = planes * block.expansion
@@ -233,6 +238,7 @@ class RCNet(nn.Module):
                     base_width=self.base_width,
                     dilation=self.dilation,
                     norm_layer=norm_layer,
+                    reduction=reduction,
                 )
             )
 
@@ -296,4 +302,4 @@ def rcnet101(**kwargs: Any) -> RCNet:
 @register_model("rcnet152")
 @register_model("rescnet152")
 def rcnet152(**kwargs: Any) -> RCNet:
-    return _rcnet(Bottleneck, [3, 8, 36, 3], **kwargs)
+    return _rcnet(Bottleneck, [3, 8, 36, 3], reduction=32, **kwargs)
