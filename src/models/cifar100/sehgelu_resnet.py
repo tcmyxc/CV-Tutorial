@@ -153,6 +153,7 @@ class ResNet(nn.Module):
         return output
 
 
+@register_model("rescnet50_c100")
 @register_model("sehgelu_resnet50_c100")
 def sehgelu_resnet50(**kwargs):
     return ResNet(BottleNeck, [3, 4, 6, 3], **kwargs)
