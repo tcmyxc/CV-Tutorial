@@ -227,7 +227,7 @@ class SequecialHGELUV4C(nn.Module):
             num_features: int,
             eps: float = 1e-5,
             r: int = 16,
-            dropout_p: float = 0,n
+            dropout_p: float = 0,
     ) -> None:
         super().__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
