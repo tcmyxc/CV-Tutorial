@@ -296,7 +296,7 @@ def rcnet50(**kwargs: Any) -> RCNet:
 @register_model("rcnet101")
 @register_model("rescnet101")
 def rcnet101(**kwargs: Any) -> RCNet:
-    return _rcnet(Bottleneck, [3, 4, 23, 3], **kwargs)
+    return _rcnet(Bottleneck, [3, 4, 23, 3], reduction=32, **kwargs)
 
 
 @register_model("rcnet152")
