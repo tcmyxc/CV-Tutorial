@@ -221,6 +221,39 @@ class SequecialHGELUV4B(nn.Module):
         return weight * x
 
 
+class SequecialHGELUV4C(nn.Module):
+    def __init__(
+            self,
+            num_features: int,
+            eps: float = 1e-5,
+            r: int = 16,
+            dropout_p: float = 0,n
+    ) -> None:
+        super().__init__()
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.fc1 = nn.Conv2d(num_features, num_features//r, 1)
+        self.fc21 = nn.Conv2d(num_features//r, num_features, 1)
+        self.fc22 = nn.Conv2d(num_features//r, num_features, 1)
+        self.eps = eps
+
+    def encode(self, x):
+        x = self.fc1(x)
+        return self.fc21(x), self.fc22(x)
+
+    def forward(self, x):
+        mu, log_var = self.encode(self.avg_pool(x))
+        # 计算标准差
+        std = torch.exp(0.5 * log_var)
+        # 归一化
+        norm_out = (x - mu) / (std + self.eps)
+        # 计算概率
+        p_out = 0.5 * (1 + torch.erf(norm_out / math.sqrt(2)))
+        # 残差学习
+        weight = torch.where(p_out < 0.5, p_out, 1 - p_out)
+
+        return weight * x
+
+
 class SequecialHGELUV5(nn.Module):
     """
     串行实现版本，分组卷积实现
