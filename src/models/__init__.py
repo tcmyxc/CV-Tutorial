@@ -103,6 +103,7 @@ ACT_MODEL_LIST = [
     'shufflenet_v2_x0_5_torch',
     'squeezenet1_0_torch', 'squeezenet1_1_torch',
     'vgg16_torch', 'vgg16_bn_torch',
+    'preactrescnet50',
 ]
 
 
