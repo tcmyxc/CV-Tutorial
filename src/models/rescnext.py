@@ -123,7 +123,7 @@ class ResNext(nn.Module):
         return nn.Sequential(*layers)
 
 
-@register_model("rescnext50_c100")
+@register_model("rc_resnext50")
 def resnext50(**kwargs):
     """ return a resnext50(c32x4d) network
     """
