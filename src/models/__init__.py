@@ -70,6 +70,7 @@ from models import(
     efficientnetv2,
     rescnet_e5,
     wide_rescnet,
+    rescnext,
 )
 
 # torchvision
