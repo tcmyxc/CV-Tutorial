@@ -71,6 +71,7 @@ from models import(
     rescnet_e5,
     wide_rescnet,
     rescnext,
+    preactrescnet,
 )
 
 # torchvision
