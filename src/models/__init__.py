@@ -68,6 +68,7 @@ from models import(
     resnet_cifar_mos,
     simplenetv1,
     efficientnetv2,
+    rescnet_e5,
 )
 
 # torchvision
