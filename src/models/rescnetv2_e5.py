@@ -280,7 +280,6 @@ class ResNet(nn.Module):
 
 
 def _resnet(
-    arch: str,
     block: Type[Union[BasicBlock, Bottleneck]],
     layers: List[int],
     **kwargs: Any,
@@ -294,4 +293,9 @@ def resnet50(**kwargs: Any) -> ResNet:
     r"""ResNet-50 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_.
     """
-    return _resnet("resnet50", Bottleneck, [3, 4, 6, 3], reductions=[16, 32, 64, 128], **kwargs)
+    return _resnet(Bottleneck, [3, 4, 6, 3], reductions=[16, 32, 64, 128], **kwargs)
+
+
+@register_model("rescnet101dv2")
+def rescnet101dv2(**kwargs: Any):
+    return _resnet(Bottleneck, [3, 4, 23, 3], reductions=[16, 32, 64, 128], **kwargs)
