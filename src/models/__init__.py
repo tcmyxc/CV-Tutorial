@@ -73,6 +73,7 @@ from models import(
     wide_rescnet,
     rescnext,
     preactrescnet,
+    rc_pyramidnet,
 )
 
 # torchvision
