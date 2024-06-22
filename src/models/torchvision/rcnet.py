@@ -146,6 +146,7 @@ class RCNet(nn.Module):
         self,
         block: Type[Union[BasicBlock, Bottleneck]],
         layers: List[int],
+        reductions: List[int],
         num_classes: int = 1000,
         zero_init_residual: bool = False,
         groups: int = 1,
@@ -177,10 +178,10 @@ class RCNet(nn.Module):
         self.bn1 = norm_layer(self.inplanes)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        self.layer1 = self._make_layer(block, 64, layers[0])
-        self.layer2 = self._make_layer(block, 128, layers[1], stride=2, dilate=replace_stride_with_dilation[0])
-        self.layer3 = self._make_layer(block, 256, layers[2], stride=2, dilate=replace_stride_with_dilation[1])
-        self.layer4 = self._make_layer(block, 512, layers[3], stride=2, dilate=replace_stride_with_dilation[2])
+        self.layer1 = self._make_layer(block, 64, layers[0], reductions[0])
+        self.layer2 = self._make_layer(block, 128, layers[1], reductions[1], stride=2, dilate=replace_stride_with_dilation[0])
+        self.layer3 = self._make_layer(block, 256, layers[2], reductions[2], stride=2, dilate=replace_stride_with_dilation[1])
+        self.layer4 = self._make_layer(block, 512, layers[3], reductions[3], stride=2, dilate=replace_stride_with_dilation[2])
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
@@ -206,11 +207,11 @@ class RCNet(nn.Module):
         block: Type[Union[BasicBlock, Bottleneck]],
         planes: int,
         blocks: int,
+        reduction: int,
         stride: int = 1,
         dilate: bool = False,
     ) -> nn.Sequential:
         norm_layer = self._norm_layer
-        reduction= self._reduction
         downsample = None
         previous_dilation = self.dilation
         if dilate:
@@ -269,40 +270,41 @@ class RCNet(nn.Module):
 def _rcnet(
     block: Type[Union[BasicBlock, Bottleneck]],
     layers: List[int],
+    reductions: List[int],
     **kwargs: Any,
 ) -> RCNet:
-    model = RCNet(block, layers, **kwargs)
+    model = RCNet(block, layers, reductions, **kwargs)
     return model
 
 
 @register_model("rcnet18")
 @register_model("rescnet18")
 def rcnet18(**kwargs: Any) -> RCNet:
-    return _rcnet(BasicBlock, [2, 2, 2, 2], **kwargs)
+    return _rcnet(BasicBlock, [2, 2, 2, 2], [16, 16, 16, 16], **kwargs)
 
 
 @register_model("rcnet34")
 @register_model("rescnet34")
 def rcnet34(**kwargs: Any) -> RCNet:
-    return _rcnet(BasicBlock, [3, 4, 6, 3], **kwargs)
+    return _rcnet(BasicBlock, [3, 4, 6, 3], [16, 16, 16, 16], **kwargs)
 
 
 @register_model("rcnet50")
 @register_model("rescnet50")
 def rcnet50(**kwargs: Any) -> RCNet:
-    return _rcnet(Bottleneck, [3, 4, 6, 3], **kwargs)
+    return _rcnet(Bottleneck, [3, 4, 6, 3], [16, 16, 16, 16], **kwargs)
 
 
 @register_model("rcnet101")
 @register_model("rescnet101")
 def rcnet101(**kwargs: Any) -> RCNet:
-    return _rcnet(Bottleneck, [3, 4, 23, 3], reduction=32, **kwargs)
+    return _rcnet(Bottleneck, [3, 4, 23, 3], [16, 32, 64, 128], **kwargs)
 
 
 @register_model("rcnet152")
 @register_model("rescnet152")
 def rcnet152(**kwargs: Any) -> RCNet:
-    return _rcnet(Bottleneck, [3, 8, 36, 3], reduction=32, **kwargs)
+    return _rcnet(Bottleneck, [3, 8, 36, 3], [16, 32, 64, 128], **kwargs)
 
 
 @register_model("rcnext50")
@@ -310,11 +312,11 @@ def rcnet152(**kwargs: Any) -> RCNet:
 def rescnext50_32x4d(**kwargs: Any):
     kwargs["groups"] = 32
     kwargs["width_per_group"] = 4
-    return _rcnet(Bottleneck, [3, 4, 6, 3], **kwargs)
+    return _rcnet(Bottleneck, [3, 4, 6, 3], [16, 16, 16, 16], **kwargs)
 
 
 @register_model("wide_rcnet50")
 @register_model("wide_rescnet50")
 def wide_rescnet50_2(**kwargs: Any):
     kwargs["width_per_group"] = 64 * 2
-    return _rcnet(Bottleneck, [3, 4, 6, 3], **kwargs)
+    return _rcnet(Bottleneck, [3, 4, 6, 3], [16, 16, 16, 16], **kwargs)
