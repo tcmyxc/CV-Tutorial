@@ -3,7 +3,7 @@
 
 for dataset in 'cifar100'
 do
-    for model in 'rescnet50d' 'resnet50_E5'
+    for model in 'rescnet50dv2'
     do
         for act in 'relu'
         do
@@ -14,9 +14,9 @@ do
                 --batch-size 128 \
                 --lr 0.1 \
                 --lr-scheduler cosineannealinglr \
-                --epochs 600 \
+                --epochs 300 \
                 --lr-warmup-epochs 20 \
-                --wd 1e-3 \
+                --wd 5e-4 \
                 --act_layer ${act} \
                 --lr-min 1e-6 \
                 --auto_augment \
@@ -32,6 +32,3 @@ do
         done
     done
 done
-
-
-

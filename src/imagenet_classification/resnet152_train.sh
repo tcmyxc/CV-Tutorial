@@ -2,7 +2,7 @@
 
 for model in 'resnet152_torch'
 do
-    CUDA_VISIBLE_DEVICES="2,3" torchrun --nproc_per_node=2  --master_port="21175" imagenet_classification/train.py \
+    CUDA_VISIBLE_DEVICES="2,3" torchrun --nproc_per_node=2  --master_port="21275" imagenet_classification/train.py \
         --lr 0.1 \
         --batch-size 128 \
         --model ${model} \

@@ -1,7 +1,8 @@
 #!/bin/bash
 
-model='resnet101_torch'
-weight_path="./work_dir_155/imagenet/${model}/best.pth"
+model='rcnet101'
+# weight_path="./work_dir_155/imagenet/${model}/best.pth"
+weight_path='/nfs/xwx/CV-Tutorial/src/work_dir_155/imagenet/rcnet101/r32/best.pth'
 CUDA_VISIBLE_DEVICES="0" torchrun --nproc_per_node=1  --master_port="22975" imagenet_classification/train.py \
     --test-only \
     --batch-size 256 \
