@@ -86,6 +86,7 @@ from models.torchvision import (
     efficientnet_torch,
     resnet_torchvision,
     rcnet,
+    seresnet_torch,
 )
 
 # act layers
