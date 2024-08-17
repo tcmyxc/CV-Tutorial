@@ -26,6 +26,7 @@ from models.cifar100 import (
     preactresnet,
     alexnet,
     sehgelu_resnet,
+    sehgelu_resnet_mlp,
 )
 # code from cutout
 from models import (
