@@ -316,3 +316,21 @@ class SequecialHGELUV6(nn.Module):
         weight = torch.where(p_out < 0.5, p_out, 1 - p_out)
 
         return weight * x
+
+
+class SequecialHGELUV4D(nn.Module):
+    """
+    仅使用全连接层
+    """
+    def __init__(
+            self,
+            num_features: int,
+            eps: float = 1e-5,
+            r: int = 16,
+            dropout_p: float = 0,
+    ) -> None:
+        super().__init__()
+        self.fc = nn.Conv2d(num_features, num_features, kernel_size=1)
+
+    def forward(self, x):
+        return self.fc(x)

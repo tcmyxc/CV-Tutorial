@@ -65,6 +65,7 @@ from models import(
     sehgelu_resnet,
     sehgelu_resnet_v3,
     sehgelu_resnet_v4,
+    sehgelu_resnet_v4mlp,
     resnet_cifar_mos,
     simplenetv1,
     efficientnetv2,
